@@ -9,12 +9,12 @@ import { EmailMockClient } from './clients/EmailClient';
 import { TeamsMockClient } from './clients/TeamsClient';
 import type { SentEmail } from './clients/EmailClient';
 import { generateReplies } from './utils/clientReplies';
-import type { ClientReply } from './types';
-import { Clients, Deal, DealState } from './types';
+import type { AuditEntry, ClientReply } from './types';
+import { Clients, Deal, DealState, PaymentBehavior } from './types';
 import { CsmRouter } from './utils/csmRouting';
 import { DEALS, CSMS, EVENTS } from '../test/fixtures/deals';
 import { runStageA } from './stages/stageA';
-import { runStageB } from './stages/stageB';
+import { runStageB, sendNudge1, sendNudge2 } from './stages/stageB';
 import { runStageC } from './stages/stageC';
 import { runStageD } from './stages/stageD';
 import { runStageE } from './stages/stageE';
@@ -40,7 +40,6 @@ let isBulkRunning = false;
 let dealStates: Map<string, DealState> = new Map();
 let nextDealId = 2000;
 
-// Per-deal client refs kept alive so detail view can read emails + Teams mutations
 const dealClients: Map<string, { email: EmailMockClient; teams: TeamsMockClient }> = new Map();
 const dealReplies: Map<string, ClientReply[]> = new Map();
 
@@ -63,26 +62,32 @@ resetAllStates();
 
 const sleep = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
 
+// ── Payment delay map ──────────────────────────────────────────────────────────
+
+const PAYMENT_DELAYS: Record<PaymentBehavior, number> = {
+  immediate:      0,
+  after_nudge1:   12_000,
+  after_nudge2:   24_000,
+  needs_followup: 999_999_999,
+};
+
 // ── Pipeline helpers ───────────────────────────────────────────────────────────
 
 function makeClients(deal: Deal): Clients {
+  const delayMs = PAYMENT_DELAYS[deal.paymentBehavior ?? 'immediate'];
   const email = new EmailMockClient();
   const teams = new TeamsMockClient();
   dealClients.set(deal.id, { email, teams });
   return {
     hubspot: new HubSpotMockClient([deal]),
     copilot: new CopilotMockClient(),
-    invoice: new InvoiceMockClient(),
+    invoice: new InvoiceMockClient(delayMs),
     email,
     teams,
   };
 }
 
-async function runOneDeal(
-  deal: Deal,
-  clients: Clients,
-  router: CsmRouter,
-): Promise<void> {
+async function runOneDeal(deal: Deal, clients: Clients, router: CsmRouter): Promise<void> {
   let state = dealStates.get(deal.id) ?? makeInitialState(deal);
 
   const emit = (s: DealState) => {
@@ -90,12 +95,21 @@ async function runOneDeal(
     broadcast('update', { dealId: deal.id, state: s });
   };
 
-  const STAGE_PAUSE   = 5_000;  // ms between stages
-  const RUNNING_PAUSE = 800;    // ms showing "running" state before stage executes
+  const STAGE_PAUSE   = 5_000;
+  const RUNNING_PAUSE = 800;
+  const POLL_INTERVAL = 4_000;
+  const NUDGE1_MS     = 8_000;
+  const NUDGE2_MS     = 20_000;
+  const MAX_WAIT_MS   = 32_000;
 
   const log = (msg: string) => process.stdout.write(`  [${deal.id}] ${msg}\n`);
 
+  const stageStartMs: Partial<Record<string, number>> = {};
+
   const preRun = async (stage: keyof DealState['stages'], label: string) => {
+    stageStartMs[stage] = Date.now();
+    state.stageStartedAt = state.stageStartedAt ?? {};
+    (state.stageStartedAt as Record<string, string>)[stage] = new Date().toISOString();
     log(`→ Stage ${stage}: ${label} — starting…`);
     state.stages[stage] = 'running';
     emit(state);
@@ -103,6 +117,11 @@ async function runOneDeal(
   };
 
   const postRun = async (stage: keyof DealState['stages'], label: string) => {
+    const started = stageStartMs[stage];
+    if (started) {
+      state.stageDurations = state.stageDurations ?? {};
+      (state.stageDurations as Record<string, number>)[stage] = Date.now() - started;
+    }
     const status = state.stages[stage];
     log(`✓ Stage ${stage}: ${label} — ${status}`);
     emit(state);
@@ -120,13 +139,68 @@ async function runOneDeal(
     log(`  nudge-1 ${state.nudge1Date} · nudge-2 ${state.nudge2Date}`);
     await postRun('B', 'Nudge Schedule');
 
+    // ── Stage C: payment wait loop ──────────────────────────────────────────
     await preRun('C', 'Payment Detection');
-    state = await runStageC(deal, state, clients);
-    if (state.stages.C !== 'complete') {
-      log(`  payment not yet received — pipeline paused`);
+
+    const waitStart = Date.now();
+    let nudge1Sent = false;
+    let nudge2Sent = false;
+    let paymentReceived = false;
+
+    while (true) {
+      const elapsed = Date.now() - waitStart;
+
+      if (!nudge1Sent && elapsed >= NUDGE1_MS) {
+        await sendNudge1(deal, state, clients);
+        nudge1Sent = true;
+        state.nudgesSent = [...(state.nudgesSent ?? []), 'nudge1'];
+        state.auditLog.push({
+          timestamp: new Date().toISOString(),
+          stage: 'C',
+          action: 'nudge1_sent',
+          data: { waitMs: elapsed, invoiceId: state.invoiceId },
+        });
+        log(`  nudge-1 sent (${Math.round(elapsed / 1000)}s elapsed)`);
+        emit(state);
+      }
+
+      if (!nudge2Sent && elapsed >= NUDGE2_MS) {
+        const newState = await sendNudge2(deal, state, clients);
+        if (newState) state = newState;
+        nudge2Sent = true;
+        state.nudgesSent = [...(state.nudgesSent ?? []), 'nudge2'];
+        log(`  nudge-2 sent + overdue flagged (${Math.round(elapsed / 1000)}s elapsed)`);
+        emit(state);
+      }
+
+      if (elapsed >= MAX_WAIT_MS) {
+        state.stages.C = 'pending';
+        state.needsHumanFollowUp = true;
+        state.paymentWaitMs = elapsed;
+        log(`  payment not received after ${Math.round(elapsed / 1000)}s — needs human follow-up`);
+        state.auditLog.push({
+          timestamp: new Date().toISOString(),
+          stage: 'C',
+          action: 'flagged_needs_followup',
+          data: { waitMs: elapsed, nudgesSent: state.nudgesSent ?? [] },
+        });
+        emit(state);
+        return;
+      }
+
+      state = await runStageC(deal, state, clients);
+      if (state.stages.C === 'complete') {
+        paymentReceived = true;
+        state.paymentWaitMs = elapsed;
+        break;
+      }
+
+      state.stages.C = 'running';
       emit(state);
-      return;
+      await sleep(POLL_INTERVAL);
     }
+
+    if (!paymentReceived) return;
     log(`  $${state.paymentAmount?.toLocaleString()} received at ${state.invoicePaidAt}`);
     await postRun('C', 'Payment Detection');
 
@@ -152,6 +226,13 @@ async function runOneDeal(
 
     await preRun('G', 'Close & Notify');
     state = await runStageG(deal, state, clients, EVENTS);
+
+    // Count Teams mutations
+    const teamsClient = dealClients.get(deal.id)?.teams;
+    if (teamsClient) {
+      state.teamsMutationCount = teamsClient.getMutations(deal.id).length;
+    }
+
     log(`  emails sent · Teams card closed · HubSpot → Closed Won`);
     await postRun('G', 'Close & Notify');
 
@@ -169,18 +250,20 @@ async function processBulk(): Promise<void> {
   await sleep(300);
 
   console.log(`\n${'─'.repeat(60)}`);
-  console.log(`  Starting bulk run — ${DEALS.length} deals`);
-  console.log(`  5 s per stage · 3 s between deals`);
+  console.log(`  Starting bulk run — ${DEALS.length} deals concurrent, 3s stagger`);
   console.log(`${'─'.repeat(60)}\n`);
 
   const router = new CsmRouter();
-  for (const deal of DEALS) {
-    console.log(`\n[${deal.id}] ${deal.company.padEnd(30)} ${deal.dealType} · $${deal.invoiceAmount.toLocaleString()}`);
-    await runOneDeal(deal, makeClients(deal), router);
-    const state = dealStates.get(deal.id);
-    if (state) dealReplies.set(deal.id, generateReplies(deal, state));
-    await sleep(3_000);
-  }
+  const promises = DEALS.map((deal, i) =>
+    sleep(i * 3_000).then(async () => {
+      console.log(`\n[${deal.id}] ${deal.company.padEnd(30)} ${deal.dealType} · $${deal.invoiceAmount.toLocaleString()} [${deal.paymentBehavior}]`);
+      await runOneDeal(deal, makeClients(deal), router);
+      const s = dealStates.get(deal.id);
+      if (s) dealReplies.set(deal.id, generateReplies(deal, s));
+    }),
+  );
+
+  await Promise.all(promises);
 
   console.log(`\n${'─'.repeat(60)}`);
   console.log(`  Bulk run complete — ${DEALS.length} deals processed`);
@@ -193,13 +276,7 @@ async function processBulk(): Promise<void> {
 
 app.use(express.static(path.join(process.cwd(), 'public')));
 
-// All deals + their current state (for initial page load)
 app.get('/api/deals', (_req, res) => {
-  const all = [...dealStates.entries()].map(([id, state]) => {
-    // Find deal in seed data or in any submitted deals store
-    return { id, state };
-  });
-  // Return seed deals merged with any runtime-submitted deals
   const seedById = new Map(DEALS.map(d => [d.id, d]));
   res.json(
     [...dealStates.keys()].map(id => {
@@ -209,7 +286,6 @@ app.get('/api/deals', (_req, res) => {
   );
 });
 
-// Deal detail: state + emails + Teams mutations
 app.get('/api/deals/:id', (req, res) => {
   const { id } = req.params;
   const state = dealStates.get(id);
@@ -227,7 +303,26 @@ app.get('/api/deals/:id', (req, res) => {
   res.json({ deal, state, emails, teamsMutations, replies });
 });
 
-// Submit a new deal (from the sales form)
+// Human intervention endpoint
+app.post('/api/deals/:id/action', (req, res) => {
+  const { id } = req.params;
+  const { action, data } = req.body as { action: string; data?: Record<string, unknown> };
+  const state = dealStates.get(id);
+  if (!state) { res.status(404).json({ error: 'Deal not found' }); return; }
+
+  const entry: AuditEntry = {
+    timestamp: new Date().toISOString(),
+    stage: (data?.stage as string) ?? 'manual',
+    action,
+    data,
+    manual: true,
+  };
+  state.auditLog.push(entry);
+  dealStates.set(id, state);
+  broadcast('update', { dealId: id, state });
+  res.json({ ok: true, entry });
+});
+
 const runtimeDeals = new Map<string, Deal>();
 
 app.post('/api/deals', (req, res) => {
@@ -241,24 +336,23 @@ app.post('/api/deals', (req, res) => {
   const deal: Deal = {
     id: `D-${++nextDealId}`,
     company:             b.company,
-    aumDollars:          Number(b.aumDollars)     || 0,
-    invoiceAmount:       Number(b.invoiceAmount)  || 0,
+    aumDollars:          Number(b.aumDollars)    || 0,
+    invoiceAmount:       Number(b.invoiceAmount) || 0,
     dealType:            b.dealType,
     primaryContact:      b.primaryContact,
     events:              b.events ?? [],
     subscriptionEndDate: b.subscriptionEndDate ?? null,
     salesRepName:        b.salesRepName,
     salesRepEmail:       b.salesRepEmail,
+    paymentBehavior:     'immediate',
   };
 
   runtimeDeals.set(deal.id, deal);
   const initialState = makeInitialState(deal);
   dealStates.set(deal.id, initialState);
 
-  // Tell every open browser tab about the new deal card before pipeline starts
   broadcast('newdeal', { deal, state: initialState });
 
-  // Process in background — no locking, independent client set
   runOneDeal(deal, makeClients(deal), new CsmRouter())
     .then(() => {
       const s = dealStates.get(deal.id);
@@ -269,14 +363,12 @@ app.post('/api/deals', (req, res) => {
   res.status(201).json({ dealId: deal.id });
 });
 
-// SSE stream
 app.get('/api/events', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
-  // Replay current state to late-joining clients
   dealStates.forEach((state, dealId) => {
     const deal = new Map(DEALS.map(d => [d.id, d])).get(dealId) ?? runtimeDeals.get(dealId);
     if (deal) res.write(`event: update\ndata: ${JSON.stringify({ dealId, state })}\n\n`);

@@ -3,6 +3,7 @@ export type CsmTier = 'Enterprise' | 'Scale';
 export type Region = 'Americas' | 'EMEA' | 'APAC' | 'Global';
 export type InvoiceStatus = 'pending' | 'sent' | 'paid' | 'overdue' | 'needs_human_followup';
 export type StageStatus = 'pending' | 'running' | 'complete' | 'failed' | 'skipped';
+export type PaymentBehavior = 'immediate' | 'after_nudge1' | 'after_nudge2' | 'needs_followup';
 
 export interface Contact {
   name: string;
@@ -34,6 +35,7 @@ export interface Deal {
   subscriptionEndDate: string | null;
   salesRepName: string;
   salesRepEmail: string;
+  paymentBehavior?: PaymentBehavior;
 }
 
 export interface Invoice {
@@ -78,14 +80,22 @@ export interface DealState {
   dueDate?: string;
   nudge1Date?: string;
   nudge2Date?: string;
+  nudgesSent?: ('nudge1' | 'nudge2')[];
   tagsApplied?: string[];
+  tagsExisting?: string[];
+  tagsNewlyApplied?: string[];
   assignedCsm?: CSM;
+  csmReasoning?: string;
   copilotCompanyId?: string;
   copilotClientIds?: string[];
   computedSubEndDate?: string;
   teamsCardId?: string;
+  teamsMutationCount?: number;
   needsHumanFollowUp?: boolean;
   haltReason?: string;
+  stageDurations?: Partial<Record<'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G', number>>;
+  stageStartedAt?: Partial<Record<'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G', string>>;
+  paymentWaitMs?: number;
   auditLog: AuditEntry[];
 }
 
@@ -106,6 +116,7 @@ export interface AuditEntry {
   stage: string;
   action: string;
   data?: Record<string, unknown>;
+  manual?: boolean;
 }
 
 export interface TeamsCardMutation {

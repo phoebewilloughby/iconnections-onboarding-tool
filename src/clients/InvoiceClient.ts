@@ -23,11 +23,9 @@ function buildPdf(invoice: Invoice, deal: Deal): Promise<string> {
     const stream = fs.createWriteStream(filePath);
     doc.pipe(stream);
 
-    // Header bar
     doc.rect(0, 0, doc.page.width, 80).fill(BRAND_PURPLE);
     doc.fillColor('white').fontSize(22).font('Helvetica-Bold').text('iConnections', 72, 28);
 
-    // Invoice title
     doc.moveDown(2).fillColor(BRAND_PURPLE).fontSize(18).font('Helvetica-Bold').text('INVOICE');
     doc.fillColor('#1A1A1A').fontSize(11).font('Helvetica');
 
@@ -38,7 +36,6 @@ function buildPdf(invoice: Invoice, deal: Deal): Promise<string> {
     doc.text(`Bill To: ${deal.company}`);
     doc.text(`Contact: ${deal.primaryContact.name} <${deal.primaryContact.email}>`);
 
-    // Line items
     doc.moveDown(1);
     doc.fillColor(BRAND_PURPLE).font('Helvetica-Bold').text('Line Items');
     doc.fillColor('#1A1A1A').font('Helvetica');
@@ -54,7 +51,6 @@ function buildPdf(invoice: Invoice, deal: Deal): Promise<string> {
     doc.moveDown(0.5);
     doc.font('Helvetica-Bold').text(`Total Due: ${dollars(invoice.amount)}`);
 
-    // Page 2: wire instructions
     doc.addPage();
     doc.rect(0, 0, doc.page.width, 80).fill(BRAND_PURPLE);
     doc.fillColor('white').fontSize(16).font('Helvetica-Bold').text('Wire Instructions', 72, 28);
@@ -81,6 +77,9 @@ function buildPdf(invoice: Invoice, deal: Deal): Promise<string> {
 
 export class InvoiceMockClient implements IInvoiceClient {
   private invoices: Map<string, Invoice> = new Map();
+  private sentAt: Map<string, number> = new Map();
+
+  constructor(private readonly paymentDelayMs: number = 0) {}
 
   async createInvoice(deal: Deal, dueDate: string): Promise<Invoice> {
     const id = generateInvoiceId(deal.id);
@@ -104,6 +103,7 @@ export class InvoiceMockClient implements IInvoiceClient {
     invoice.status = 'sent';
     invoice.sentAt = new Date().toISOString();
     invoice.pdfPath = pdfPath;
+    this.sentAt.set(invoiceId, Date.now());
 
     console.log(`  [Invoice] Sent ${invoiceId} → PDF at ${pdfPath}`);
     return pdfPath;
@@ -113,13 +113,22 @@ export class InvoiceMockClient implements IInvoiceClient {
     const invoice = this.invoices.get(invoiceId);
     if (!invoice) throw new Error(`Invoice not found: ${invoiceId}`);
 
-    // Mock: payment always arrives immediately
-    if (invoice.status !== 'paid') {
+    if (invoice.status === 'paid') {
+      return { paid: true, paidAt: invoice.paidAt, amount: invoice.amount };
+    }
+    if (invoice.status === 'needs_human_followup' || invoice.status === 'overdue') {
+      return { paid: false };
+    }
+
+    const elapsed = Date.now() - (this.sentAt.get(invoiceId) ?? Date.now());
+    if (elapsed >= this.paymentDelayMs) {
       invoice.status = 'paid';
       invoice.paidAt = new Date().toISOString();
+      console.log(`  [Invoice] Payment received for ${invoiceId}: ${dollars(invoice.amount)} (delay ${Math.round(elapsed / 1000)}s)`);
+      return { paid: true, paidAt: invoice.paidAt, amount: invoice.amount };
     }
-    console.log(`  [Invoice] Payment received for ${invoiceId}: ${dollars(invoice.amount)}`);
-    return { paid: true, paidAt: invoice.paidAt, amount: invoice.amount };
+
+    return { paid: false };
   }
 
   async getInvoice(invoiceId: string): Promise<Invoice> {
@@ -150,34 +159,39 @@ export class InvoiceLiveClient implements IInvoiceClient {
   constructor(private readonly baseUrl: string, private readonly apiKey: string) {}
 
   async createInvoice(_deal: Deal, _dueDate: string): Promise<Invoice> {
-    // TODO: POST {baseUrl}/invoices with deal details; also create HubSpot invoice record
     throw new Error('InvoiceLiveClient.createInvoice: not yet wired up');
   }
 
   async sendInvoice(_invoiceId: string, _deal: Deal): Promise<string> {
-    // TODO: POST {baseUrl}/invoices/{id}/send — triggers email with PDF attachment from invoice layer
     throw new Error('InvoiceLiveClient.sendInvoice: not yet wired up');
   }
 
   async pollForPayment(_invoiceId: string): Promise<{ paid: boolean; paidAt?: string; amount?: number }> {
-    // TODO: GET {baseUrl}/invoices/{id}/payments — match on amount + client reference
-    // Retry with exponential backoff; emit invoice.paid event on match
     throw new Error('InvoiceLiveClient.pollForPayment: not yet wired up');
   }
 
   async getInvoice(_invoiceId: string): Promise<Invoice> {
-    // TODO: GET {baseUrl}/invoices/{id}
     throw new Error('InvoiceLiveClient.getInvoice: not yet wired up');
   }
 
   async markOverdue(_invoiceId: string): Promise<void> {
-    // TODO: PATCH {baseUrl}/invoices/{id}  { status: 'overdue' }
     throw new Error('InvoiceLiveClient.markOverdue: not yet wired up');
   }
 
   async flagNeedsFollowUp(_invoiceId: string): Promise<void> {
-    // TODO: PATCH {baseUrl}/invoices/{id}  { status: 'needs_human_followup' }
-    // Also write a HubSpot deal note via Notes API
     throw new Error('InvoiceLiveClient.flagNeedsFollowUp: not yet wired up');
   }
 }
+
+export {
+  renderInvoiceEmailHtml,
+  renderInvoiceEmailText,
+  renderNudge1Html,
+  renderNudge1Text,
+  renderNudge2Html,
+  renderNudge2Text,
+  renderCsmNotificationHtml,
+  renderCsmNotificationText,
+  renderClientWelcomeHtml,
+  renderClientWelcomeText,
+} from '../utils/templates';

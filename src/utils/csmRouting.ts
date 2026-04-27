@@ -10,30 +10,30 @@ export function detectRegion(mobile: string): Region {
   const normalized = mobile.replace(/[\s\-().]/g, '');
   if (normalized.startsWith('+1')) return 'Americas';
   if (
-    normalized.startsWith('+44') ||  // UK
-    normalized.startsWith('+33') ||  // France
-    normalized.startsWith('+49') ||  // Germany
-    normalized.startsWith('+31') ||  // Netherlands
-    normalized.startsWith('+41') ||  // Switzerland
-    normalized.startsWith('+32') ||  // Belgium
-    normalized.startsWith('+34') ||  // Spain
-    normalized.startsWith('+39') ||  // Italy
-    normalized.startsWith('+46') ||  // Sweden
-    normalized.startsWith('+47') ||  // Norway
-    normalized.startsWith('+45') ||  // Denmark
-    normalized.startsWith('+353') || // Ireland
-    normalized.startsWith('+358') || // Finland
-    normalized.startsWith('+351') || // Portugal
-    normalized.startsWith('+30')     // Greece
+    normalized.startsWith('+44') ||
+    normalized.startsWith('+33') ||
+    normalized.startsWith('+49') ||
+    normalized.startsWith('+31') ||
+    normalized.startsWith('+41') ||
+    normalized.startsWith('+32') ||
+    normalized.startsWith('+34') ||
+    normalized.startsWith('+39') ||
+    normalized.startsWith('+46') ||
+    normalized.startsWith('+47') ||
+    normalized.startsWith('+45') ||
+    normalized.startsWith('+353') ||
+    normalized.startsWith('+358') ||
+    normalized.startsWith('+351') ||
+    normalized.startsWith('+30')
   ) return 'EMEA';
   if (
-    normalized.startsWith('+65') ||  // Singapore
-    normalized.startsWith('+81') ||  // Japan
-    normalized.startsWith('+82') ||  // South Korea
-    normalized.startsWith('+61') ||  // Australia
-    normalized.startsWith('+64') ||  // New Zealand
-    normalized.startsWith('+852') || // Hong Kong
-    normalized.startsWith('+86')     // China
+    normalized.startsWith('+65') ||
+    normalized.startsWith('+81') ||
+    normalized.startsWith('+82') ||
+    normalized.startsWith('+61') ||
+    normalized.startsWith('+64') ||
+    normalized.startsWith('+852') ||
+    normalized.startsWith('+86')
   ) return 'APAC';
   return 'Global';
 }
@@ -41,12 +41,14 @@ export function detectRegion(mobile: string): Region {
 export class CsmRouter {
   private counters: Map<string, number> = new Map();
 
-  assignCsm(deal: Deal, allCsms: CSM[]): CSM {
+  assignCsm(deal: Deal, allCsms: CSM[]): { csm: CSM; reasoning: string } {
     const tier = determineTier(deal);
     const region = detectRegion(deal.primaryContact.mobile);
 
-    // Strictly regional: only match CSMs whose region equals the detected region exactly.
-    // Unknown country codes resolve to 'Global' and match only Global-region CSMs.
+    const tierReason = deal.invoiceAmount > 25000
+      ? `invoice $${(deal.invoiceAmount / 1000).toFixed(0)}k > $25k threshold`
+      : `AUM $${(deal.aumDollars / 1e9).toFixed(2)}B > $1B threshold`;
+
     const pool = allCsms.filter(c => c.tier === tier && c.region === region);
 
     if (pool.length === 0) {
@@ -58,6 +60,10 @@ export class CsmRouter {
     const key = `${tier}:${region}`;
     const idx = (this.counters.get(key) ?? 0) % pool.length;
     this.counters.set(key, idx + 1);
-    return pool[idx];
+    const csm = pool[idx];
+
+    const reasoning = `Tier=${tier} (${tierReason}); Region=${region} (mobile ${deal.primaryContact.mobile}); pool=${pool.length} CSM${pool.length !== 1 ? 's' : ''}; round-robin slot ${idx + 1}/${pool.length} → ${csm.name}`;
+
+    return { csm, reasoning };
   }
 }

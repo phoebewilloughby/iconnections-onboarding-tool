@@ -18,7 +18,6 @@ export async function runStageD(deal: Deal, state: DealState, clients: Clients):
   const existing = await clients.hubspot.getTags(deal.id);
   const expected = expectedTags(deal);
 
-  // Check for conflicting deal-type tags
   const existingTypes = existing.filter(t =>
     DEAL_TYPE_TAGS.includes(t as typeof DEAL_TYPE_TAGS[number]),
   );
@@ -36,7 +35,6 @@ export async function runStageD(deal: Deal, state: DealState, clients: Clients):
     return state;
   }
 
-  // Validate: Event Only must have at least one event tag
   if (deal.dealType === 'Event Only' && deal.events.length === 0) {
     state.stages.D = 'failed';
     state.haltReason = 'Event Only deal has no event tags';
@@ -51,22 +49,19 @@ export async function runStageD(deal: Deal, state: DealState, clients: Clients):
 
   const allTags = Array.from(new Set([...existing, ...expected]));
   state.tagsApplied = allTags;
+  state.tagsExisting = existing;
+  state.tagsNewlyApplied = missing;
   state.stages.D = 'complete';
 
   if (state.teamsCardId) {
-    await clients.teams.patchCard(
-      state.teamsCardId,
-      deal,
-      state,
-      'deal_tagged',
-    );
+    await clients.teams.patchCard(state.teamsCardId, deal, state, 'deal_tagged');
   }
 
   state.auditLog.push({
     timestamp: new Date().toISOString(),
     stage: 'D',
     action: 'tags_applied',
-    data: { tags: allTags, newlyApplied: missing },
+    data: { tags: allTags, existing, newlyApplied: missing },
   });
 
   return state;

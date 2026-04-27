@@ -30,6 +30,7 @@ export const DEALS: Deal[] = [
     subscriptionEndDate: '2027-05-31',
     salesRepName: 'Jordan Mills',
     salesRepEmail: 'jmills@iconnections.io',
+    paymentBehavior: 'immediate',
   },
   {
     id: 'D-1002',
@@ -42,6 +43,7 @@ export const DEALS: Deal[] = [
     subscriptionEndDate: '2027-05-15',
     salesRepName: 'Jordan Mills',
     salesRepEmail: 'jmills@iconnections.io',
+    paymentBehavior: 'after_nudge2',
   },
   {
     id: 'D-1003',
@@ -54,6 +56,7 @@ export const DEALS: Deal[] = [
     subscriptionEndDate: null,
     salesRepName: 'Sophie Lane',
     salesRepEmail: 'slane@iconnections.io',
+    paymentBehavior: 'immediate',
   },
   {
     id: 'D-1004',
@@ -66,6 +69,7 @@ export const DEALS: Deal[] = [
     subscriptionEndDate: '2027-06-01',
     salesRepName: 'Jordan Mills',
     salesRepEmail: 'jmills@iconnections.io',
+    paymentBehavior: 'after_nudge1',
   },
   {
     id: 'D-1005',
@@ -78,6 +82,7 @@ export const DEALS: Deal[] = [
     subscriptionEndDate: '2027-04-30',
     salesRepName: 'Sophie Lane',
     salesRepEmail: 'slane@iconnections.io',
+    paymentBehavior: 'after_nudge2',
   },
   {
     id: 'D-1006',
@@ -90,6 +95,7 @@ export const DEALS: Deal[] = [
     subscriptionEndDate: '2027-05-20',
     salesRepName: 'Jordan Mills',
     salesRepEmail: 'jmills@iconnections.io',
+    paymentBehavior: 'immediate',
   },
   {
     id: 'D-1007',
@@ -102,6 +108,7 @@ export const DEALS: Deal[] = [
     subscriptionEndDate: null,
     salesRepName: 'Sophie Lane',
     salesRepEmail: 'slane@iconnections.io',
+    paymentBehavior: 'after_nudge1',
   },
   {
     id: 'D-1008',
@@ -114,6 +121,7 @@ export const DEALS: Deal[] = [
     subscriptionEndDate: '2027-05-10',
     salesRepName: 'Jordan Mills',
     salesRepEmail: 'jmills@iconnections.io',
+    paymentBehavior: 'needs_followup',
   },
   {
     id: 'D-1009',
@@ -126,6 +134,7 @@ export const DEALS: Deal[] = [
     subscriptionEndDate: '2027-06-15',
     salesRepName: 'Sophie Lane',
     salesRepEmail: 'slane@iconnections.io',
+    paymentBehavior: 'after_nudge1',
   },
   {
     id: 'D-1010',
@@ -138,6 +147,7 @@ export const DEALS: Deal[] = [
     subscriptionEndDate: '2027-04-22',
     salesRepName: 'Sophie Lane',
     salesRepEmail: 'slane@iconnections.io',
+    paymentBehavior: 'after_nudge2',
   },
   {
     id: 'D-1011',
@@ -150,6 +160,7 @@ export const DEALS: Deal[] = [
     subscriptionEndDate: '2027-06-10',
     salesRepName: 'Jordan Mills',
     salesRepEmail: 'jmills@iconnections.io',
+    paymentBehavior: 'after_nudge1',
   },
   {
     id: 'D-1012',
@@ -162,5 +173,6 @@ export const DEALS: Deal[] = [
     subscriptionEndDate: null,
     salesRepName: 'Sophie Lane',
     salesRepEmail: 'slane@iconnections.io',
+    paymentBehavior: 'needs_followup',
   },
 ];

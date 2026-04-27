@@ -14,8 +14,9 @@ export async function runStageE(
   if (state.stages.D !== 'complete') throw new Error('Stage E requires Stage D to be complete');
   state.stages.E = 'running';
 
-  const csm = router.assignCsm(deal, allCsms);
+  const { csm, reasoning } = router.assignCsm(deal, allCsms);
   state.assignedCsm = csm;
+  state.csmReasoning = reasoning;
 
   await clients.hubspot.setDealProperty(deal.id, 'assigned_csm_name', csm.name);
   await clients.hubspot.setDealProperty(deal.id, 'assigned_csm_email', csm.email);
@@ -23,7 +24,6 @@ export async function runStageE(
   state.stages.E = 'complete';
 
   if (state.teamsCardId) {
-    // @mention the assigned CSM so they're notified before the client welcome email lands
     await clients.teams.patchCard(
       state.teamsCardId,
       deal,
@@ -37,7 +37,7 @@ export async function runStageE(
     timestamp: new Date().toISOString(),
     stage: 'E',
     action: 'csm_assigned',
-    data: { csm: csm.name, tier: csm.tier, region: csm.region },
+    data: { csm: csm.name, tier: csm.tier, region: csm.region, reasoning },
   });
 
   return state;
