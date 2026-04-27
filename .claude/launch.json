@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "iconnections-server",
+      "runtimeExecutable": "/Users/phoebewilloughby/.nvm/versions/node/v22.22.2/bin/node",
+      "runtimeArgs": ["/Users/phoebewilloughby/Desktop/vibe-codeathon-phoebe/node_modules/.bin/ts-node", "src/server.ts"],
+      "port": 3000,
+      "autoPort": false
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(extract-text /Users/phoebewilloughby/Downloads/onboarding_tool_build_spec.docx)",
+      "Bash(pandoc /Users/phoebewilloughby/Downloads/onboarding_tool_build_spec.docx -t markdown)",
+      "Bash(brew install *)",
+      "Bash(npm install *)",
+      "Bash(curl -s http://localhost:3000/api/deals)",
+      "Bash(pkill -f \"ts-node src/server.ts\")",
+      "Bash(curl -s -X POST http://localhost:3000/api/run)",
+      "Bash(curl -s http://localhost:3000/api/deals/D-1001)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -c \"import sys,json; lines=sys.stdin.readlines\\(\\); [print\\(json.loads\\(l\\).get\\('message',{}\\).get\\('content',''\\)[:500] if isinstance\\(json.loads\\(l\\).get\\('message',{}\\).get\\('content',''\\),str\\) else ''\\) for l in lines[-20:]]\")",
+      "Bash(grep -v '^$')",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(/usr/local/bin/npm run *)",
+      "Bash(export PATH=\"$HOME/.nvm/versions/node/v22.22.2/bin:$PATH\")",
+      "mcp__Claude_Preview__preview_start",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(python3 -m json.tool)",
+      "Bash(gh auth *)",
+      "Bash(git --version)",
+      "Bash(git init *)",
+      "Bash(git add *)"
+    ]
+  }
+}

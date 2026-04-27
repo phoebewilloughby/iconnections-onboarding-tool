@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iConnections — Onboarding Dashboard</title>
+<style>
+:root {
+  --purple:       #6A2B7E;
+  --purple-mid:   #8b3da0;
+  --purple-light: #f3eaf7;
+  --purple-border:#d9b8e8;
+  --white:        #ffffff;
+  --text:         #1A1A1A;
+  --muted:        #6b7280;
+  --border:       #e5e7eb;
+  --bg:           #f8f6fa;
+  --danger:       #dc2626;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; }
+
+/* ── Header ── */
+header {
+  background: var(--purple); color: var(--white);
+  padding: 0 24px; height: 56px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(106,43,126,0.4); z-index: 20; position: relative;
+}
+.logo { font-size: 16px; font-weight: bold; letter-spacing: -0.2px; }
+.logo span { opacity: 0.55; font-weight: normal; font-size: 13px; margin-left: 8px; }
+.header-btns { display: flex; gap: 7px; }
+button {
+  font-family: Arial, sans-serif; font-size: 12.5px; font-weight: bold;
+  border: none; border-radius: 6px; padding: 7px 16px; cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+button:active:not(:disabled) { transform: scale(0.97); }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-ghost  { background: rgba(255,255,255,0.13); color: var(--white); border: 1px solid rgba(255,255,255,0.28); }
+.btn-ghost:hover:not(:disabled) { background: rgba(255,255,255,0.22); }
+.btn-white  { background: var(--white); color: var(--purple); }
+.btn-white:hover:not(:disabled) { background: #f5eefa; }
+.btn-purple { background: var(--purple); color: var(--white); }
+.btn-purple:hover:not(:disabled) { background: var(--purple-mid); }
+.btn-new    { background: var(--white); color: var(--purple); }
+.btn-new:hover:not(:disabled) { background: #f0e5f6; }
+
+/* ── KPI bar ── */
+.kpi-bar {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 0 24px; height: 48px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 0;
+}
+.kpi { display: flex; align-items: baseline; gap: 5px; padding: 0 18px; }
+.kpi:first-child { padding-left: 0; }
+.kpi-val   { font-size: 18px; font-weight: bold; color: var(--purple); }
+.kpi-lbl   { font-size: 11px; color: var(--muted); }
+.kpi-sep   { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
+.kpi-right { margin-left: auto; display: flex; align-items: center; gap: 10px; padding-left: 18px; border-left: 1px solid var(--border); }
+.progress-wrap { display: flex; align-items: center; gap: 8px; }
+.progress-track { width: 100px; height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.progress-fill  { height: 100%; background: var(--purple); border-radius: 99px; width: 0%; transition: width 0.5s ease; }
+.progress-pct   { font-size: 12px; font-weight: bold; color: var(--purple); }
+
+/* ── Filter row ── */
+.filter-row {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 0 24px; height: 42px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 10px;
+}
+.filter-label { font-size: 10.5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); white-space: nowrap; }
+.chip-group   { display: flex; gap: 5px; }
+.chip {
+  font-family: Arial, sans-serif; font-size: 11.5px; font-weight: bold;
+  padding: 4px 11px; border-radius: 99px; cursor: pointer;
+  border: 1.5px solid var(--border); background: var(--bg); color: var(--muted);
+  transition: all 0.15s;
+}
+.chip:hover  { border-color: var(--purple-border); color: var(--purple); background: var(--purple-light); }
+.chip.active { border-color: var(--purple); background: var(--purple); color: var(--white); }
+.chip:active { transform: scale(0.96); }
+.filter-sep  { width: 1px; height: 18px; background: var(--border); margin: 0 6px; }
+
+/* ── Kanban ── */
+.kanban-wrap {
+  flex: 1; overflow-x: auto; overflow-y: hidden;
+  padding: 16px 20px 0;
+  display: flex; align-items: stretch;
+}
+.kanban-board {
+  display: flex; gap: 10px; align-items: flex-start;
+  min-height: 100%; padding-bottom: 20px;
+}
+.kanban-col {
+  width: 210px; flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 0;
+  height: 100%;
+}
+.col-head {
+  background: var(--purple-light);
+  border: 1px solid var(--purple-border);
+  border-radius: 8px 8px 0 0;
+  padding: 9px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.col-head.stage-G  { background: var(--purple); border-color: var(--purple); }
+.col-head.stage-G .col-title  { color: var(--white); }
+.col-head.stage-G .col-count  { background: rgba(255,255,255,0.25); color: var(--white); }
+.col-head.stage-halt { background: #fee2e2; border-color: #fca5a5; }
+.col-head.stage-halt .col-title { color: var(--danger); }
+.col-title { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.07em; color: var(--purple); }
+.col-count { font-size: 10px; font-weight: bold; padding: 1px 7px; border-radius: 99px; background: var(--purple); color: var(--white); min-width: 20px; text-align: center; }
+.col-body  {
+  flex: 1; overflow-y: auto;
+  background: var(--bg);
+  border: 1px solid var(--purple-border); border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 8px 7px;
+  display: flex; flex-direction: column; gap: 7px;
+}
+
+/* ── Kanban card ── */
+.kcard {
+  background: var(--white);
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--purple);
+  padding: 9px 10px;
+  cursor: pointer;
+  transition: box-shadow 0.18s, transform 0.18s;
+}
+.kcard:hover { box-shadow: 0 3px 12px rgba(106,43,126,0.18); transform: translateY(-1px); }
+.kcard.running { border-left-color: var(--purple); box-shadow: 0 0 0 2px rgba(106,43,126,0.2); }
+.kcard.failed  { border-left-color: var(--danger); }
+.kcard-company { font-size: 12.5px; font-weight: bold; line-height: 1.3; margin-bottom: 4px; }
+.kcard-row { display: flex; align-items: center; gap: 5px; margin-top: 3px; flex-wrap: wrap; }
+.kcard-badge { font-size: 9.5px; font-weight: bold; padding: 1.5px 7px; border-radius: 99px; background: var(--purple-light); color: var(--purple); white-space: nowrap; }
+.kcard-badge.amt  { background: transparent; border: 1px solid var(--purple-border); }
+.kcard-badge.tier { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.kcard-badge.fail { background: #fee2e2; color: var(--danger); }
+.kcard-running { display: flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 10.5px; color: var(--purple); font-weight: bold; }
+.pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--purple); animation: pulse-dot 0.85s ease-in-out infinite; flex-shrink: 0; }
+@keyframes pulse-dot { 0%,100%{box-shadow:0 0 0 0 rgba(106,43,126,0.45)} 50%{box-shadow:0 0 0 4px rgba(106,43,126,0)} }
+
+/* Card animation */
+@keyframes card-enter { from{opacity:0;transform:translateY(-6px) scale(0.97)} to{opacity:1;transform:none} }
+@keyframes card-exit  { from{opacity:1;transform:none} to{opacity:0;transform:translateY(6px) scale(0.97)} }
+.card-entering { animation: card-enter 0.3s ease forwards; }
+.card-exiting  { animation: card-exit 0.25s ease forwards; pointer-events: none; }
+
+/* ── New Deal slide-over ── */
+#overlay { display:none; position:fixed; inset:0; z-index:30; background:rgba(0,0,0,0.42); }
+#overlay.open { display:block; }
+#panel {
+  position:fixed; top:0; right:0; bottom:0; width:480px;
+  background:var(--white); box-shadow:-6px 0 32px rgba(0,0,0,0.18);
+  display:flex; flex-direction:column;
+  transform:translateX(100%); transition:transform 0.28s cubic-bezier(0.4,0,0.2,1); z-index:31;
+}
+#panel.open { transform:translateX(0); }
+.panel-header {
+  background:var(--purple); color:var(--white);
+  padding:0 20px; height:56px;
+  display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+}
+.panel-header h2 { font-size:15px; }
+.panel-close { background:none; color:var(--white); border:none; font-size:22px; line-height:1; padding:4px 8px; cursor:pointer; opacity:0.75; border-radius:4px; font-weight:normal; }
+.panel-close:hover { opacity:1; background:rgba(255,255,255,0.15); }
+.panel-body { flex:1; overflow-y:auto; padding:20px 20px 8px; }
+.panel-footer { padding:12px 20px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end; flex-shrink:0; }
+.panel-footer button { min-width:110px; padding:9px 18px; }
+
+/* Form */
+.form-section { margin-bottom:20px; }
+.form-section-title { font-size:10.5px; font-weight:bold; text-transform:uppercase; letter-spacing:0.08em; color:var(--purple); margin-bottom:10px; padding-bottom:5px; border-bottom:1px solid var(--purple-light); }
+.form-row { display:flex; gap:10px; margin-bottom:10px; }
+.form-row .field { flex:1; }
+.field { margin-bottom:10px; }
+label { display:block; font-size:11px; font-weight:bold; color:var(--text); margin-bottom:4px; }
+label .req { color:var(--purple); }
+input[type="text"],input[type="email"],input[type="number"],input[type="date"],select {
+  width:100%; font-family:Arial,sans-serif; font-size:12.5px; padding:7px 10px;
+  border:1.5px solid var(--border); border-radius:6px; color:var(--text); background:var(--white);
+  outline:none; transition:border-color 0.15s; appearance:none; -webkit-appearance:none;
+}
+input:focus,select:focus { border-color:var(--purple); }
+input.err,select.err { border-color:var(--danger); }
+.field-hint { font-size:10px; color:var(--muted); margin-top:3px; }
+.field-err  { font-size:10px; color:var(--danger); margin-top:3px; display:none; }
+.field-err.show { display:block; }
+.event-grid { display:flex; flex-direction:column; gap:6px; }
+.event-item { display:flex; align-items:center; gap:8px; cursor:pointer; }
+.event-item input[type="checkbox"] { width:15px; height:15px; accent-color:var(--purple); cursor:pointer; flex-shrink:0; }
+.event-item span { font-size:12px; }
+#sub-end-row { transition:opacity 0.2s; }
+#sub-end-row.hidden { opacity:0; pointer-events:none; height:0; overflow:hidden; margin:0; }
+#csm-preview { display:none; margin-top:12px; padding:9px 12px; background:var(--purple-light); border-radius:6px; border-left:3px solid var(--purple); font-size:11.5px; color:var(--purple); }
+#csm-preview strong { font-weight:bold; }
+
+/* ── Detail drawer ── */
+#detail-panel {
+  position:fixed; inset:0;
+  background:var(--bg); z-index:50;
+  display:flex; flex-direction:column;
+  transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); overflow:hidden;
+}
+#detail-panel.open { transform:translateX(0); }
+.detail-header {
+  background:var(--purple); color:var(--white);
+  padding:0 24px; height:56px;
+  display:flex; align-items:center; gap:14px; flex-shrink:0;
+  box-shadow:0 2px 8px rgba(106,43,126,0.4);
+}
+.detail-back { background:rgba(255,255,255,0.13); border:1px solid rgba(255,255,255,0.28); color:var(--white); padding:6px 13px; font-size:12.5px; border-radius:6px; cursor:pointer; flex-shrink:0; }
+.detail-back:hover { background:rgba(255,255,255,0.22); }
+.detail-title { flex:1; }
+.detail-title strong { font-size:16px; font-weight:bold; }
+.detail-title span   { font-size:12.5px; opacity:0.65; margin-left:9px; }
+.detail-badge { font-size:10.5px; font-weight:bold; padding:3px 10px; background:rgba(255,255,255,0.15); border-radius:99px; border:1px solid rgba(255,255,255,0.3); }
+.detail-meta { background:var(--white); border-bottom:1px solid var(--border); padding:10px 24px; display:flex; gap:20px; align-items:center; flex-wrap:wrap; flex-shrink:0; }
+.meta-item { font-size:12px; color:var(--muted); }
+.meta-item strong { color:var(--text); }
+
+/* Pipeline bar */
+.detail-pipeline { background:var(--white); border-bottom:1px solid var(--border); padding:13px 24px; display:flex; align-items:flex-start; flex-shrink:0; overflow-x:auto; }
+.pipeline-step { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; min-width:72px; position:relative; }
+.pipeline-step:not(:last-child)::after { content:''; position:absolute; top:12px; left:calc(50% + 14px); right:calc(-50% + 14px); height:2px; background:var(--border); transition:background 0.3s; }
+.pipeline-step.done-step::after { background:var(--purple); }
+.pipeline-dot { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:bold; flex-shrink:0; z-index:1; }
+.pipeline-dot.pending  { background:var(--border); color:var(--muted); }
+.pipeline-dot.running  { background:var(--purple); color:var(--white); animation:pulse-dot 0.85s ease-in-out infinite; }
+.pipeline-dot.complete { background:var(--purple); color:var(--white); }
+.pipeline-dot.failed   { background:var(--danger); color:var(--white); }
+.pipeline-lbl { font-size:9.5px; text-align:center; color:var(--muted); line-height:1.3; }
+.pipeline-lbl.done   { color:var(--purple); font-weight:bold; }
+.pipeline-lbl.active { color:var(--purple); font-weight:bold; }
+
+/* Tabs */
+.detail-tabs { background:var(--white); border-bottom:1px solid var(--border); padding:0 20px; display:flex; flex-shrink:0; }
+.tab-btn { background:none; border:none; border-bottom:2.5px solid transparent; color:var(--muted); font-size:12.5px; font-weight:normal; padding:10px 15px; cursor:pointer; border-radius:0; transition:color 0.15s, border-color 0.15s; }
+.tab-btn:hover { color:var(--text); }
+.tab-btn.active { color:var(--purple); border-bottom-color:var(--purple); font-weight:bold; }
+.tab-btn:active { transform:none; }
+.tab-count { display:inline-flex; align-items:center; justify-content:center; background:var(--purple-light); color:var(--purple); font-size:9.5px; font-weight:bold; width:16px; height:16px; border-radius:99px; margin-left:4px; }
+.detail-body { flex:1; overflow-y:auto; padding:20px 24px 40px; }
+
+/* Thread */
+.thread-list { display:flex; flex-direction:column; gap:10px; }
+.thread-item { border-radius:8px; border:1px solid var(--border); overflow:hidden; background:var(--white); }
+.thread-item.outbound { border-left:3px solid var(--purple); }
+.thread-item.inbound  { border-left:3px solid #9ca3af; }
+.thread-head { padding:10px 14px; display:flex; align-items:flex-start; gap:10px; cursor:pointer; user-select:none; }
+.thread-head:hover { background:var(--bg); }
+.thread-avatar { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:bold; flex-shrink:0; }
+.avatar-out { background:var(--purple); color:var(--white); }
+.avatar-in  { background:#e5e7eb; color:var(--muted); }
+.thread-meta { flex:1; min-width:0; }
+.thread-from    { font-size:12.5px; font-weight:bold; }
+.thread-subject { font-size:11.5px; color:var(--muted); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.thread-time { font-size:11px; color:var(--muted); flex-shrink:0; }
+.thread-chevron { font-size:10px; color:var(--muted); margin-left:5px; transition:transform 0.2s; flex-shrink:0; }
+.thread-item.expanded .thread-chevron { transform:rotate(180deg); }
+.thread-body { display:none; border-top:1px solid var(--border); }
+.thread-item.expanded .thread-body { display:block; }
+.thread-body iframe { width:100%; border:none; min-height:150px; display:block; }
+.thread-body .reply-text { padding:14px 16px; font-size:13px; line-height:1.75; white-space:pre-wrap; color:var(--text); background:var(--bg); }
+.thread-type-badge { font-size:9.5px; font-weight:bold; padding:2px 7px; border-radius:99px; flex-shrink:0; margin-top:3px; }
+.badge-invoice  { background:#dbeafe; color:#1e40af; }
+.badge-nudge1   { background:#fef3c7; color:#92400e; }
+.badge-nudge2   { background:#fee2e2; color:#991b1b; }
+.badge-csm      { background:var(--purple-light); color:var(--purple); }
+.badge-welcome  { background:#dcfce7; color:#166534; }
+.badge-reply    { background:#f3f4f6; color:#374151; border:1px solid var(--border); }
+
+/* Overview */
+.overview-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:11px; margin-bottom:22px; }
+.ov-card { background:var(--white); border-radius:7px; border:1px solid var(--border); padding:12px 14px; }
+.ov-card-title { font-size:9.5px; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); margin-bottom:7px; font-weight:bold; }
+.ov-card-body { font-size:12px; line-height:1.75; }
+.ov-card-body strong { color:var(--purple); }
+.ov-stage-list { display:flex; flex-direction:column; gap:5px; }
+.ov-stage-row { display:flex; align-items:flex-start; gap:9px; padding:7px 11px; border-radius:6px; font-size:12px; }
+.ov-stage-row.complete { background:var(--purple-light); }
+.ov-stage-row.running  { background:#fdf8ff; border:1px solid var(--purple-border); }
+.ov-stage-row.failed   { background:#fee2e2; }
+.ov-stage-row.pending  { background:var(--bg); color:var(--muted); }
+.ov-dot { width:18px; height:18px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:bold; margin-top:1px; }
+.ov-dot.complete { background:var(--purple); color:var(--white); }
+.ov-dot.running  { background:var(--purple); color:var(--white); animation:pulse-dot 0.85s ease-in-out infinite; }
+.ov-dot.failed   { background:var(--danger); color:var(--white); }
+.ov-dot.pending  { background:var(--border); }
+
+/* Teams */
+.teams-list { display:flex; flex-direction:column; gap:10px; }
+.teams-mutation { background:var(--white); border-radius:7px; border:1px solid var(--border); overflow:hidden; }
+.teams-mutation-head { padding:10px 14px; display:flex; align-items:center; gap:9px; cursor:pointer; user-select:none; }
+.teams-mutation-head:hover { background:var(--bg); }
+.mutation-type-badge { font-size:9.5px; font-weight:bold; padding:2px 7px; border-radius:99px; flex-shrink:0; }
+.badge-create { background:var(--purple-light); color:var(--purple); }
+.badge-patch  { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+.mutation-reason { font-size:12.5px; font-weight:bold; flex:1; }
+.mutation-time { font-size:11px; color:var(--muted); flex-shrink:0; }
+.teams-card-preview { display:none; border-top:1px solid var(--border); padding:13px 15px; background:var(--bg); }
+.teams-mutation.expanded .teams-card-preview { display:block; }
+.teams-checklist { list-style:none; padding:0; margin:7px 0; font-size:12.5px; line-height:1.9; }
+.teams-checklist li.checked   { color:var(--text); }
+.teams-checklist li.unchecked { color:var(--muted); }
+.teams-checklist em { font-style:normal; color:var(--muted); font-size:11px; }
+
+/* Audit */
+.audit-table { width:100%; border-collapse:collapse; font-size:12px; background:var(--white); border-radius:7px; overflow:hidden; border:1px solid var(--border); }
+.audit-table th { background:var(--purple-light); color:var(--purple); font-size:10px; text-transform:uppercase; letter-spacing:0.05em; padding:8px 13px; text-align:left; }
+.audit-table td { padding:8px 13px; border-top:1px solid var(--border); vertical-align:top; }
+.audit-table tr:hover td { background:var(--bg); }
+.audit-stage { display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; background:var(--purple); color:var(--white); border-radius:50%; font-size:9px; font-weight:bold; }
+.audit-data { font-size:10.5px; color:var(--muted); margin-top:2px; font-family:monospace; word-break:break-all; }
+.empty-state { text-align:center; padding:44px 20px; color:var(--muted); font-size:12.5px; }
+.empty-state strong { display:block; font-size:14px; color:var(--text); margin-bottom:5px; }
+
+/* JSON viewer */
+.json-viewer { font-family:monospace; font-size:11.5px; line-height:1.65; white-space:pre-wrap; word-break:break-all; background:var(--white); border:1px solid var(--border); border-radius:7px; padding:16px; color:var(--text); overflow:auto; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo">iConnections <span>Onboarding</span></div>
+  <div class="header-btns">
+    <button id="btn-reset" class="btn-ghost" onclick="doReset()">Reset</button>
+    <button id="btn-run"   class="btn-ghost" onclick="doRun()">▶ Run All Deals</button>
+    <button id="btn-new"   class="btn-new"   onclick="openPanel()">+ New Deal</button>
+  </div>
+</header>
+
+<!-- KPI bar -->
+<div class="kpi-bar">
+  <div class="kpi"><span class="kpi-val" id="kpi-invoiced">$0</span><span class="kpi-lbl">Invoiced</span></div>
+  <div class="kpi-sep"></div>
+  <div class="kpi"><span class="kpi-val" id="kpi-collected">$0</span><span class="kpi-lbl">Collected</span></div>
+  <div class="kpi-sep"></div>
+  <div class="kpi"><span class="kpi-val" id="kpi-enterprise">0</span><span class="kpi-lbl">Enterprise deals</span></div>
+  <div class="kpi-sep"></div>
+  <div class="kpi"><span class="kpi-val" id="kpi-scale">0</span><span class="kpi-lbl">Scale deals</span></div>
+  <div class="kpi-sep"></div>
+  <div class="kpi"><span class="kpi-val" id="kpi-avgtime">—</span><span class="kpi-lbl">Avg onboarding</span></div>
+  <div class="kpi-right">
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <span class="progress-pct" id="progress-pct">0%</span>
+    </div>
+    <span class="kpi-lbl" id="kpi-done" style="white-space:nowrap">0 / 0 onboarded</span>
+  </div>
+</div>
+
+<!-- Filter row -->
+<div class="filter-row">
+  <span class="filter-label">Type</span>
+  <div class="chip-group">
+    <button class="chip active" onclick="setFilter('type','all')">All</button>
+    <button class="chip" onclick="setFilter('type','Platform Renewal')">Platform Renewal</button>
+    <button class="chip" onclick="setFilter('type','New Client')">New Client</button>
+    <button class="chip" onclick="setFilter('type','Event Only')">Event Only</button>
+  </div>
+  <div class="filter-sep"></div>
+  <span class="filter-label">Tier</span>
+  <div class="chip-group">
+    <button class="chip active" onclick="setFilter('tier','all')">All</button>
+    <button class="chip" onclick="setFilter('tier','Enterprise')">Enterprise</button>
+    <button class="chip" onclick="setFilter('tier','Scale')">Scale</button>
+  </div>
+</div>
+
+<!-- Kanban board -->
+<div class="kanban-wrap">
+  <div class="kanban-board" id="board"></div>
+</div>
+
+<!-- New Deal slide-over -->
+<div id="overlay" onclick="closePanel()"></div>
+<div id="panel">
+  <div class="panel-header">
+    <h2>New Deal</h2>
+    <button class="panel-close" onclick="closePanel()">&#x2715;</button>
+  </div>
+  <div class="panel-body">
+    <form id="deal-form" onsubmit="submitDeal(event)" novalidate>
+      <div class="form-section">
+        <div class="form-section-title">Deal Information</div>
+        <div class="field">
+          <label>Company Name <span class="req">*</span></label>
+          <input type="text" id="f-company" autocomplete="off">
+          <div class="field-err" id="err-company">Required</div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Deal Type <span class="req">*</span></label>
+            <select id="f-dealType" onchange="onDealTypeChange()">
+              <option value="">Select…</option>
+              <option>Platform Renewal</option>
+              <option>New Client</option>
+              <option>Event Only</option>
+            </select>
+            <div class="field-err" id="err-dealType">Required</div>
+          </div>
+          <div class="field">
+            <label>Invoice ($) <span class="req">*</span></label>
+            <input type="number" id="f-invoiceAmount" min="1">
+            <div class="field-err" id="err-invoiceAmount">Enter a valid amount</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Firm AUM ($) <span class="req">*</span></label>
+          <input type="number" id="f-aum" min="0">
+          <div class="field-hint">Enterprise if &gt;$1B AUM or invoice &gt;$25k</div>
+          <div class="field-err" id="err-aum">Enter a valid AUM</div>
+        </div>
+        <div id="csm-preview"></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Primary Contact</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" id="f-contactName">
+            <div class="field-err" id="err-contactName">Required</div>
+          </div>
+          <div class="field">
+            <label>Email <span class="req">*</span></label>
+            <input type="email" id="f-contactEmail">
+            <div class="field-err" id="err-contactEmail">Valid email required</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Mobile <span class="req">*</span></label>
+          <input type="text" id="f-contactMobile" oninput="updateCsmPreview()">
+          <div class="field-hint">Include country code (+1 Americas, +44/+353/+41 EMEA, +65 APAC)</div>
+          <div class="field-err" id="err-contactMobile">Required (include country code)</div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Events <span id="events-req" style="font-size:10px;color:var(--purple);display:none">— at least one required</span></div>
+        <div class="event-grid" id="event-grid"></div>
+        <div class="field-err" id="err-events" style="margin-top:7px">Select at least one event for Event Only deals</div>
+      </div>
+      <div class="form-section" id="sub-end-row">
+        <div class="form-section-title">Subscription</div>
+        <div class="field">
+          <label id="sub-end-label">Subscription End Date <span class="req">*</span></label>
+          <input type="date" id="f-subEnd">
+          <div class="field-hint" id="sub-end-hint">Platform Renewals are extended by 12 months automatically.</div>
+          <div class="field-err" id="err-subEnd">Required</div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Sales Rep</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Name <span class="req">*</span></label>
+            <input type="text" id="f-repName">
+            <div class="field-err" id="err-repName">Required</div>
+          </div>
+          <div class="field">
+            <label>Email <span class="req">*</span></label>
+            <input type="email" id="f-repEmail">
+            <div class="field-err" id="err-repEmail">Valid email required</div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="panel-footer">
+    <button type="button" class="btn-ghost" style="background:var(--bg);color:var(--text);border:1px solid var(--border);" onclick="closePanel()">Cancel</button>
+    <button type="submit" form="deal-form" id="btn-submit" class="btn-purple">Create Deal →</button>
+  </div>
+</div>
+
+<!-- Deal Detail drawer -->
+<div id="detail-panel">
+  <div class="detail-header">
+    <button class="detail-back" onclick="closeDetail()">← Back</button>
+    <div class="detail-title">
+      <strong id="d-company"></strong><span id="d-id"></span>
+    </div>
+    <span class="detail-badge" id="d-type-badge"></span>
+  </div>
+  <div class="detail-meta" id="d-meta"></div>
+  <div class="detail-pipeline" id="d-pipeline"></div>
+  <div class="detail-tabs">
+    <button class="tab-btn active" id="tab-btn-thread"   onclick="switchTab('thread')">Thread</button>
+    <button class="tab-btn"        id="tab-btn-overview" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn"        id="tab-btn-teams"    onclick="switchTab('teams')">Teams Card</button>
+    <button class="tab-btn"        id="tab-btn-audit"    onclick="switchTab('audit')">Audit JSON</button>
+  </div>
+  <div class="detail-body">
+    <div id="tab-thread"   ></div>
+    <div id="tab-overview" style="display:none"></div>
+    <div id="tab-teams"    style="display:none"></div>
+    <div id="tab-audit"    style="display:none"></div>
+  </div>
+</div>
+
+<script>
+// ── Constants ─────────────────────────────────────────────────────────────────
+const EVENTS_LIST = [
+  'Global Alts Miami 2026','Family Office Summit NYC 2026',
+  'European Allocator Series London 2026','Asia Pacific Forum Singapore 2026',
+  'Emerging Managers Summit 2026','Credit Investors Forum 2026',
+];
+const STAGE_LABELS = { A:'Invoice Sent', B:'Nudge Scheduled', C:'Payment Received', D:'Deal Tagged', E:'CSM Assigned', F:'Copilot Registered', G:'Closed Won' };
+const STAGE_SHORT  = { A:'Invoice', B:'Nudge', C:'Payment', D:'Tags', E:'CSM', F:'Copilot', G:'Closed' };
+const STAGE_KEYS   = ['A','B','C','D','E','F','G'];
+const COLUMNS      = [
+  { key:'pending', label:'Pending',           cls:'' },
+  { key:'A',       label:'A: Invoice Sent',   cls:'' },
+  { key:'B',       label:'B: Nudge Scheduled',cls:'' },
+  { key:'C',       label:'C: Payment',        cls:'' },
+  { key:'D',       label:'D: Tagged',         cls:'' },
+  { key:'E',       label:'E: CSM Assigned',   cls:'' },
+  { key:'F',       label:'F: Copilot',        cls:'' },
+  { key:'G',       label:'G: Closed Won',     cls:'stage-G' },
+  { key:'halted',  label:'Halted',            cls:'stage-halt' },
+];
+const TYPE_LABELS  = { invoice:'Invoice', nudge1:'Nudge 1', nudge2:'Nudge 2', csm_notification:'CSM Notification', client_welcome:'Welcome' };
+const TYPE_BADGES  = { invoice:'badge-invoice', nudge1:'badge-nudge1', nudge2:'badge-nudge2', csm_notification:'badge-csm', client_welcome:'badge-welcome' };
+const REASON_LABELS = { payment_received:'Payment Received', deal_tagged:'Deal Tagged', csm_assigned:'CSM Assigned', copilot_registered:'Copilot Registered', onboarded_closed_won:'Onboarded & Closed Won', nudge2_overdue:'Invoice Overdue' };
+
+const deals  = {};
+const states = {};
+const seedDealIds = new Set();
+let filters  = { type: 'all', tier: 'all' };
+let dealCols = {};  // dealId → current column key
+
+// ── Dollars ───────────────────────────────────────────────────────────────────
+function dollars(n) { return '$' + Number(n).toLocaleString('en-US'); }
+
+// ── Column assignment ─────────────────────────────────────────────────────────
+function getColumn(state) {
+  if (state.stages.D === 'failed') return 'halted';
+  for (let i = STAGE_KEYS.length - 1; i >= 0; i--) {
+    const s = STAGE_KEYS[i];
+    if (state.stages[s] === 'complete' || state.stages[s] === 'running') return s;
+  }
+  return 'pending';
+}
+
+// ── Filter test ───────────────────────────────────────────────────────────────
+function passesFilter(dealId) {
+  const deal  = deals[dealId];
+  const state = states[dealId];
+  if (!deal) return true;
+  if (filters.type !== 'all' && deal.dealType !== filters.type) return false;
+  if (filters.tier !== 'all') {
+    const tier = state?.assignedCsm?.tier;
+    if (!tier || tier !== filters.tier) return false;
+  }
+  return true;
+}
+
+// ── Build kanban board ────────────────────────────────────────────────────────
+function buildBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  COLUMNS.forEach(col => {
+    const el = document.createElement('div');
+    el.className = 'kanban-col';
+    el.id = 'col-' + col.key;
+    el.innerHTML = `
+      <div class="col-head ${col.cls}">
+        <span class="col-title">${col.label}</span>
+        <span class="col-count" id="col-count-${col.key}">0</span>
+      </div>
+      <div class="col-body" id="col-cards-${col.key}"></div>`;
+    board.appendChild(el);
+  });
+}
+
+// ── Build a kanban card ───────────────────────────────────────────────────────
+function buildKCard(dealId) {
+  const deal  = deals[dealId];
+  const state = states[dealId];
+  if (!deal) return null;
+
+  const div = document.createElement('div');
+  div.id        = 'kcard-' + dealId;
+  div.className = 'kcard';
+  div.onclick   = () => openDetail(dealId);
+  updateKCardContent(div, deal, state);
+  return div;
+}
+
+function updateKCardContent(div, deal, state) {
+  const csm     = state?.assignedCsm;
+  const running = STAGE_KEYS.find(s => state?.stages[s] === 'running');
+  const failed  = state?.stages.D === 'failed';
+
+  div.className = 'kcard' + (running ? ' running' : '') + (failed ? ' failed' : '');
+  div.innerHTML = `
+    <div class="kcard-company">${deal.company}</div>
+    <div class="kcard-row">
+      <span class="kcard-badge">${deal.dealType}</span>
+      <span class="kcard-badge amt">${dollars(deal.invoiceAmount)}</span>
+    </div>
+    ${csm ? `<div class="kcard-row"><span class="kcard-badge tier">${csm.tier}</span><span style="font-size:10.5px;color:var(--muted);margin-left:2px">${csm.name.split(' ')[0]}</span></div>` : ''}
+    ${running ? `<div class="kcard-running"><div class="pulse-dot"></div>${STAGE_LABELS[running]}…</div>` : ''}
+    ${failed  ? `<div class="kcard-row"><span class="kcard-badge fail">Tag conflict</span></div>` : ''}
+  `;
+}
+
+// ── Place or move a card ──────────────────────────────────────────────────────
+function placeCard(dealId, animate) {
+  const newCol = getColumn(states[dealId] || {});
+  const oldCol = dealCols[dealId];
+  dealCols[dealId] = newCol;
+
+  const visible = passesFilter(dealId);
+  let card = document.getElementById('kcard-' + dealId);
+
+  if (!card) {
+    card = buildKCard(dealId);
+    if (!card) return;
+    if (!visible) { card.style.display = 'none'; }
+    const container = document.getElementById('col-cards-' + newCol);
+    if (container) {
+      container.appendChild(card);
+      if (animate && visible) card.classList.add('card-entering');
+    }
+    updateColCounts();
+    return;
+  }
+
+  // Update content
+  updateKCardContent(card, deals[dealId], states[dealId]);
+  card.style.display = visible ? '' : 'none';
+
+  if (newCol === oldCol) { updateColCounts(); return; }
+
+  // Move to new column
+  const newContainer = document.getElementById('col-cards-' + newCol);
+  if (!newContainer) return;
+
+  if (animate && visible) {
+    card.classList.add('card-exiting');
+    setTimeout(() => {
+      card.classList.remove('card-exiting');
+      newContainer.prepend(card);
+      card.classList.add('card-entering');
+      setTimeout(() => card.classList.remove('card-entering'), 320);
+      updateColCounts();
+    }, 260);
+  } else {
+    newContainer.prepend(card);
+    updateColCounts();
+  }
+}
+
+function updateColCounts() {
+  COLUMNS.forEach(col => {
+    const container = document.getElementById('col-cards-' + col.key);
+    if (!container) return;
+    const visible = [...container.children].filter(c => c.style.display !== 'none').length;
+    const el = document.getElementById('col-count-' + col.key);
+    if (el) el.textContent = visible;
+  });
+}
+
+// ── KPIs ──────────────────────────────────────────────────────────────────────
+function updateKpis() {
+  let invoiced = 0, collected = 0, enterprise = 0, scale = 0, total = 0;
+  const onboardTimes = [];
+
+  for (const [id, state] of Object.entries(states)) {
+    const deal = deals[id];
+    if (!deal) continue;
+    total++;
+    if (state.stages.A === 'complete' || state.stages.A === 'running') invoiced += deal.invoiceAmount;
+    if (state.stages.C === 'complete') collected += deal.invoiceAmount;
+    const csm = state.assignedCsm;
+    if (csm?.tier === 'Enterprise') enterprise++;
+    if (csm?.tier === 'Scale')      scale++;
+
+    // Avg onboarding time: first audit entry → G-complete entry
+    if (state.stages.G === 'complete' && state.auditLog?.length >= 2) {
+      const first = new Date(state.auditLog[0].timestamp).getTime();
+      const last  = new Date(state.auditLog[state.auditLog.length - 1].timestamp).getTime();
+      if (last > first) onboardTimes.push((last - first) / 1000);
+    }
+  }
+
+  document.getElementById('kpi-invoiced').textContent   = dollars(invoiced);
+  document.getElementById('kpi-collected').textContent  = dollars(collected);
+  document.getElementById('kpi-enterprise').textContent = enterprise;
+  document.getElementById('kpi-scale').textContent      = scale;
+
+  if (onboardTimes.length) {
+    const avg = onboardTimes.reduce((a,b)=>a+b,0) / onboardTimes.length;
+    document.getElementById('kpi-avgtime').textContent = avg >= 60
+      ? (avg/60).toFixed(1) + ' min'
+      : Math.round(avg) + ' s';
+  }
+
+  const done = Object.values(states).filter(s => s.stages?.G === 'complete').length;
+  const pct  = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('kpi-done').textContent       = `${done} / ${total} onboarded`;
+  document.getElementById('progress-fill').style.width  = pct + '%';
+  document.getElementById('progress-pct').textContent   = pct + '%';
+}
+
+// ── Filters ───────────────────────────────────────────────────────────────────
+function setFilter(key, val) {
+  filters[key] = val;
+
+  // Update chip active state
+  document.querySelectorAll(`.chip`).forEach(c => {
+    if (c.getAttribute('onclick')?.includes(`'${key}'`)) {
+      c.classList.toggle('active', c.getAttribute('onclick')?.includes(`'${val}'`));
+    }
+  });
+
+  // Show/hide cards
+  for (const dealId of Object.keys(deals)) {
+    const card = document.getElementById('kcard-' + dealId);
+    if (card) card.style.display = passesFilter(dealId) ? '' : 'none';
+  }
+  updateColCounts();
+}
+
+// ── Detail view ───────────────────────────────────────────────────────────────
+let activeDetailId  = null;
+let activeTab       = 'thread';
+let detailEmails    = null;
+let detailMutations = null;
+let detailReplies   = null;
+let _emailHtmls     = [];
+
+function openDetail(dealId) {
+  activeDetailId  = dealId;
+  activeTab       = 'thread';
+  detailEmails    = null;
+  detailMutations = null;
+  detailReplies   = null;
+  renderDetailShell();
+  document.getElementById('detail-panel').classList.add('open');
+  refreshDetailArtifacts(dealId);
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('open');
+  activeDetailId = null;
+}
+
+function refreshDetailArtifacts(dealId) {
+  fetch('/api/deals/' + dealId)
+    .then(r => r.json())
+    .then(d => {
+      if (activeDetailId !== dealId) return;
+      detailEmails    = d.emails    || [];
+      detailMutations = d.teamsMutations || [];
+      detailReplies   = d.replies   || [];
+      renderDetailShell();
+    })
+    .catch(() => {});
+}
+
+function switchTab(name) {
+  activeTab = name;
+  ['thread','overview','teams','audit'].forEach(t => {
+    document.getElementById('tab-' + t).style.display        = t === name ? 'block' : 'none';
+    document.getElementById('tab-btn-' + t).classList.toggle('active', t === name);
+  });
+}
+
+function renderDetailShell() {
+  const dealId = activeDetailId;
+  if (!dealId) return;
+  const deal  = deals[dealId];
+  const state = states[dealId];
+  if (!deal || !state) return;
+
+  document.getElementById('d-company').textContent    = deal.company;
+  document.getElementById('d-id').textContent         = deal.id;
+  document.getElementById('d-type-badge').textContent = deal.dealType;
+
+  const csm = state.assignedCsm;
+  document.getElementById('d-meta').innerHTML = [
+    `<span class="meta-item"><strong>${dollars(deal.invoiceAmount)}</strong> invoice</span>`,
+    `<span class="meta-item">AUM <strong>${dollars(deal.aumDollars)}</strong></span>`,
+    `<span class="meta-item">Contact <strong>${deal.primaryContact.name}</strong> · ${deal.primaryContact.email}</span>`,
+    `<span class="meta-item">Sales Rep <strong>${deal.salesRepName}</strong></span>`,
+    csm ? `<span class="meta-item">CSM <strong>${csm.name}</strong> · ${csm.tier}</span>` : '',
+    state.invoiceId ? `<span class="meta-item">Invoice <strong>${state.invoiceId}</strong></span>` : '',
+  ].join('');
+
+  document.getElementById('d-pipeline').innerHTML = STAGE_KEYS.map((s, i) => {
+    const status  = state.stages[s] || 'pending';
+    const prevDone = i > 0 && state.stages[STAGE_KEYS[i-1]] === 'complete';
+    return `<div class="pipeline-step${prevDone ? ' done-step' : ''}">
+      <div class="pipeline-dot ${status}">${status==='complete'?'✓':status==='failed'?'✗':s}</div>
+      <div class="pipeline-lbl${status==='complete'?' done':status==='running'?' active':''}">${STAGE_SHORT[s]}</div>
+    </div>`;
+  }).join('');
+
+  renderThreadTab(deal, state, detailEmails, detailReplies);
+  renderOverviewTab(deal, state);
+  renderTeamsTab(detailMutations);
+  renderAuditTab(state.auditLog);
+
+  const emailCount = detailEmails ? detailEmails.length : 0;
+  const replyCount = detailReplies ? detailReplies.length : 0;
+  const total = emailCount + replyCount;
+  document.getElementById('tab-btn-thread').innerHTML =
+    'Thread' + (total > 0 ? ` <span class="tab-count">${total}</span>` : '');
+
+  switchTab(activeTab);
+}
+
+// ── Thread tab ────────────────────────────────────────────────────────────────
+function renderThreadTab(deal, state, emails, replies) {
+  const items = [];
+  if (emails) emails.forEach((e, i) => items.push({ kind:'out', idx:i, ts:e.timestamp, data:e }));
+  if (replies) replies.forEach(r => items.push({ kind:'in', ts:r.timestamp, data:r }));
+  items.sort((a, b) => a.ts.localeCompare(b.ts));
+
+  if (items.length === 0) {
+    document.getElementById('tab-thread').innerHTML =
+      '<div class="empty-state"><strong>No messages yet</strong>Emails and client replies appear here as the deal progresses.</div>';
+    return;
+  }
+
+  _emailHtmls = emails ? emails.map(e => e.bodyHtml) : [];
+
+  const html = items.map((item, i) => {
+    const ts = item.ts ? new Date(item.ts).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '';
+    if (item.kind === 'out') {
+      const e = item.data;
+      const addr = `To: ${e.to}${e.cc ? ' · CC: ' + e.cc : ''}`;
+      return `<div class="thread-item outbound" id="ti-${i}">
+        <div class="thread-head" onclick="toggleThread(${i}, ${item.idx}, true)">
+          <div class="thread-avatar avatar-out">iC</div>
+          <div class="thread-meta">
+            <div class="thread-from">iConnections <span class="thread-type-badge ${TYPE_BADGES[e.type]||'badge-invoice'}">${TYPE_LABELS[e.type]||e.type}</span></div>
+            <div class="thread-subject">${e.subject}</div>
+            <div style="font-size:10.5px;color:var(--muted);margin-top:1px">${addr}</div>
+          </div>
+          <span class="thread-time">${ts}</span>
+          <span class="thread-chevron">▼</span>
+        </div>
+        <div class="thread-body" id="tbody-${i}"></div>
+      </div>`;
+    } else {
+      const r = item.data;
+      const initials = r.fromName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      return `<div class="thread-item inbound" id="ti-${i}">
+        <div class="thread-head" onclick="toggleThread(${i}, null, false)">
+          <div class="thread-avatar avatar-in">${initials}</div>
+          <div class="thread-meta">
+            <div class="thread-from">${r.fromName} <span class="thread-type-badge badge-reply">Reply</span></div>
+            <div class="thread-subject">${r.subject}</div>
+            <div style="font-size:10.5px;color:var(--muted);margin-top:1px">To: ${r.toEmail}</div>
+          </div>
+          <span class="thread-time">${ts}</span>
+          <span class="thread-chevron">▼</span>
+        </div>
+        <div class="thread-body" id="tbody-${i}"></div>
+      </div>`;
+    }
+  }).join('');
+
+  document.getElementById('tab-thread').innerHTML = `<div class="thread-list">${html}</div>`;
+}
+
+function toggleThread(i, emailIdx, isOutbound) {
+  const item   = document.getElementById('ti-' + i);
+  const tbody  = document.getElementById('tbody-' + i);
+  item.classList.toggle('expanded');
+  if (item.classList.contains('expanded') && !tbody.innerHTML) {
+    if (isOutbound && emailIdx !== null && _emailHtmls[emailIdx]) {
+      const iframe = document.createElement('iframe');
+      iframe.scrolling = 'no';
+      iframe.style.cssText = 'width:100%;border:none;min-height:150px;display:block';
+      iframe.srcdoc = _emailHtmls[emailIdx];
+      iframe.onload = () => {
+        try {
+          const doc = iframe.contentDocument || iframe.contentWindow.document;
+          iframe.style.height = Math.max(doc.documentElement.scrollHeight, 150) + 'px';
+        } catch(e) {}
+      };
+      tbody.appendChild(iframe);
+    } else {
+      // inline reply text
+      const allItems = document.querySelectorAll('.thread-item.inbound');
+      const inboundIdx = [...document.querySelectorAll('[id^="ti-"]')].indexOf(item);
+      const replies = detailReplies || [];
+      // find the reply by matching position
+      const allThreadItems = document.querySelectorAll('[id^="ti-"]');
+      const pos = [...allThreadItems].indexOf(item);
+      // get the reply from thread order
+      const threadItems = [];
+      if (detailEmails) detailEmails.forEach((e,idx)=>threadItems.push({kind:'out',idx,ts:e.timestamp}));
+      if (detailReplies) detailReplies.forEach(r=>threadItems.push({kind:'in',ts:r.timestamp,data:r}));
+      threadItems.sort((a,b)=>a.ts.localeCompare(b.ts));
+      const thisItem = threadItems[i];
+      if (thisItem?.kind === 'in') {
+        const div = document.createElement('div');
+        div.className = 'reply-text';
+        div.textContent = thisItem.data.body;
+        tbody.appendChild(div);
+      }
+    }
+  }
+}
+
+// ── Overview tab ──────────────────────────────────────────────────────────────
+function renderOverviewTab(deal, state) {
+  const csm    = state.assignedCsm;
+  const subEnd = state.computedSubEndDate || deal.subscriptionEndDate || 'N/A';
+  const stageDetails = {
+    A: state.invoiceId ? `Invoice ${state.invoiceId} · Due ${state.dueDate||'—'}` : '',
+    B: state.nudge1Date ? `Nudge 1: ${state.nudge1Date} · Nudge 2: ${state.nudge2Date}` : '',
+    C: state.invoicePaidAt ? `${dollars(state.paymentAmount)} received ${state.invoicePaidAt.slice(0,10)}` : '',
+    D: state.tagsApplied ? state.tagsApplied.join(', ') : '',
+    E: csm ? `${csm.name} · ${csm.tier} · ${csm.region}` : '',
+    F: state.copilotCompanyId ? `Co. ${state.copilotCompanyId} · Sub end: ${subEnd}` : '',
+    G: state.stages.G==='complete' ? 'Closed Won ✓' : '',
+  };
+  const stagesHtml = Object.entries(STAGE_LABELS).map(([s, lbl]) => {
+    const st  = state.stages[s] || 'pending';
+    const det = stageDetails[s];
+    return `<div class="ov-stage-row ${st}">
+      <div class="ov-dot ${st}">${st==='complete'?'✓':st==='failed'?'✗':''}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:bold">${s}: ${lbl}</div>
+        ${det?`<div style="font-size:11px;color:var(--muted);margin-top:1px">${det}</div>`:''}
+        ${state.haltReason&&s==='D'?`<div style="font-size:11px;color:var(--danger);margin-top:1px">⚑ ${state.haltReason}</div>`:''}
+      </div></div>`;
+  }).join('');
+
+  const cards = [
+    `<div class="ov-card"><div class="ov-card-title">Deal Info</div><div class="ov-card-body">
+      <div><strong>${deal.company}</strong></div><div>Type: ${deal.dealType}</div>
+      <div>Invoice: ${dollars(deal.invoiceAmount)}</div><div>AUM: ${dollars(deal.aumDollars)}</div>
+      ${deal.dealType!=='Event Only'?`<div>Sub end: ${subEnd}</div>`:''}
+    </div></div>`,
+    `<div class="ov-card"><div class="ov-card-title">Primary Contact</div><div class="ov-card-body">
+      <div><strong>${deal.primaryContact.name}</strong></div>
+      <div>${deal.primaryContact.email}</div><div>${deal.primaryContact.mobile}</div>
+    </div></div>`,
+    csm?`<div class="ov-card"><div class="ov-card-title">Assigned CSM</div><div class="ov-card-body">
+      <div><strong>${csm.name}</strong></div><div>${csm.tier} · ${csm.region}</div><div>${csm.email}</div>
+    </div></div>`:'',
+    state.tagsApplied?`<div class="ov-card"><div class="ov-card-title">HubSpot Tags</div><div class="ov-card-body">
+      ${state.tagsApplied.map(t=>`<span class="kcard-badge" style="display:inline-block;margin:2px 2px 2px 0">${t}</span>`).join('')}
+    </div></div>`:'',
+    state.copilotCompanyId?`<div class="ov-card"><div class="ov-card-title">Copilot v3</div><div class="ov-card-body">
+      <div>Company: <strong>${state.copilotCompanyId}</strong></div>
+      ${state.copilotClientIds?`<div>Client: <strong>${state.copilotClientIds[0]}</strong></div>`:''}
+      <div>Events: ${deal.events.join(', ')||'—'}</div>
+    </div></div>`:'',
+    `<div class="ov-card"><div class="ov-card-title">Sales Rep</div><div class="ov-card-body">
+      <div><strong>${deal.salesRepName}</strong></div><div>${deal.salesRepEmail}</div>
+    </div></div>`,
+  ].filter(Boolean).join('');
+
+  document.getElementById('tab-overview').innerHTML = `
+    <div class="overview-grid">${cards}</div>
+    <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:0.07em;color:var(--purple);margin-bottom:9px">Stage Progress</div>
+    <div class="ov-stage-list">${stagesHtml}</div>`;
+}
+
+// ── Teams tab ─────────────────────────────────────────────────────────────────
+function renderTeamsTab(mutations) {
+  if (!mutations || mutations.length === 0) {
+    document.getElementById('tab-teams').innerHTML =
+      '<div class="empty-state"><strong>No Teams card yet</strong>Created when Stage A completes.</div>';
+    return;
+  }
+  const chk = (checked, label, detail) =>
+    `<li class="${checked?'checked':'unchecked'}">${checked?'☑':'☐'} ${label}${detail?' — <em>'+detail+'</em>':''}</li>`;
+  const html = mutations.map((m, i) => {
+    const ts    = m.timestamp ? new Date(m.timestamp).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '';
+    const label = m.type==='create'?'Card Created':(REASON_LABELS[m.patchReason]||m.patchReason||'Patched');
+    const c     = m.cardState;
+    return `<div class="teams-mutation" id="teams-m-${i}">
+      <div class="teams-mutation-head" onclick="toggleTeams(${i})">
+        <span class="mutation-type-badge ${m.type==='create'?'badge-create':'badge-patch'}">${m.type==='create'?'Create':'Patch'}</span>
+        <span class="mutation-reason">${label}</span>
+        <span class="mutation-time">${ts}</span>
+        <span class="thread-chevron">▼</span>
+      </div>
+      <div class="teams-card-preview">
+        <div style="font-size:10.5px;font-weight:bold;color:var(--purple);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:9px">
+          ${c.headerCompany} · ${c.headerDealId} · ${c.headerStage}${c.headerBadge?' · ⚑ '+c.headerBadge:''}
+        </div>
+        <ul class="teams-checklist">
+          ${chk(c.invoiceSentChecked,'Invoice sent',c.invoiceSentTimestamp?c.invoiceSentTimestamp.slice(0,10):null)}
+          ${chk(c.paymentReceivedChecked,'Payment received',c.paymentAmount?dollars(c.paymentAmount):null)}
+          ${chk(c.dealTaggedChecked,'Deal tagged',c.dealTaggedTags?c.dealTaggedTags.join(', '):null)}
+          ${chk(c.csmAssignedChecked,'CSM assigned',c.csmAssignedName||null)}
+          ${chk(c.copilotRegisteredChecked,'Copilot registered',c.copilotRegisteredClients?c.copilotRegisteredClients+' client(s)':null)}
+          ${chk(c.onboardedChecked,'Onboarded',null)}
+        </ul>
+        <div style="font-size:11px;color:var(--muted)">
+          CSM: ${c.footerCsm||'—'} · Invoice: ${c.footerInvoiceAmount?dollars(c.footerInvoiceAmount):'—'} · Sub end: ${c.footerSubEnd||'N/A'}
+          ${c.footerEvents?.length?' · Events: '+c.footerEvents.join('; '):''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('tab-teams').innerHTML = `<div class="teams-list">${html}</div>`;
+}
+function toggleTeams(i) { document.getElementById('teams-m-'+i).classList.toggle('expanded'); }
+
+// ── Audit tab ─────────────────────────────────────────────────────────────────
+function renderAuditTab(auditLog) {
+  if (!auditLog || auditLog.length === 0) {
+    document.getElementById('tab-audit').innerHTML = '<div class="empty-state"><strong>No audit entries yet</strong></div>';
+    return;
+  }
+  document.getElementById('tab-audit').innerHTML =
+    `<div class="json-viewer">${JSON.stringify(auditLog, null, 2)}</div>`;
+}
+
+// ── New Deal form ─────────────────────────────────────────────────────────────
+function detectTier(aum, amount) { return (amount > 25000 || aum > 1_000_000_000) ? 'Enterprise' : 'Scale'; }
+function detectRegion(mobile) {
+  const n = mobile.replace(/[\s\-().]/g,'');
+  if (n.startsWith('+1')) return 'Americas';
+  if (['+44','+33','+49','+41','+32','+34','+39','+46','+47','+45','+353','+358','+351','+30'].some(p=>n.startsWith(p))) return 'EMEA';
+  if (['+65','+81','+82','+61','+64','+852','+86'].some(p=>n.startsWith(p))) return 'APAC';
+  return 'Global';
+}
+const CSM_MAP = {
+  'Enterprise:Americas':'Marcus Whitfield','Enterprise:EMEA':'Priya Anand','Enterprise:APAC':'James Calloway',
+  'Scale:Americas':'Tessa Nguyen','Scale:EMEA':"Ryan O'Brien",'Scale:Global':'Hannah Petrov',
+};
+function updateCsmPreview() {
+  const aum=Number(document.getElementById('f-aum').value)||0;
+  const amt=Number(document.getElementById('f-invoiceAmount').value)||0;
+  const mobile=document.getElementById('f-contactMobile').value.trim();
+  const preview=document.getElementById('csm-preview');
+  if (!aum && !amt && !mobile){preview.style.display='none';return;}
+  const tier=detectTier(aum,amt), region=mobile?detectRegion(mobile):'—';
+  const csm=CSM_MAP[`${tier}:${region}`]||'No CSM for this region';
+  preview.style.display='block';
+  preview.innerHTML=`<strong>CSM preview:</strong> ${tier} · ${region} → <strong>${csm}</strong>`;
+}
+function buildEventGrid() {
+  const grid=document.getElementById('event-grid');
+  EVENTS_LIST.forEach(ev=>{
+    const label=document.createElement('label');
+    label.className='event-item';
+    label.innerHTML=`<input type="checkbox" name="event" value="${ev}"> <span>${ev}</span>`;
+    grid.appendChild(label);
+  });
+}
+function onDealTypeChange() {
+  const type=document.getElementById('f-dealType').value;
+  const subRow=document.getElementById('sub-end-row');
+  const evReq=document.getElementById('events-req');
+  const hint=document.getElementById('sub-end-hint');
+  const subLabel=document.getElementById('sub-end-label');
+  if (type==='Event Only'){subRow.classList.add('hidden');evReq.style.display='inline';}
+  else {
+    subRow.classList.remove('hidden');evReq.style.display='none';
+    if (type==='Platform Renewal'){hint.style.display='block';subLabel.innerHTML='Current Subscription End Date <span class="req">*</span>';}
+    else{hint.style.display='none';subLabel.innerHTML='Subscription End Date <span class="req">*</span>';}
+  }
+  updateCsmPreview();
+}
+function showErr(id,msg){const el=document.getElementById('err-'+id);if(el){el.textContent=msg||el.textContent;el.classList.add('show');}const inp=document.getElementById('f-'+id);if(inp)inp.classList.add('err');}
+function clearErr(id){const el=document.getElementById('err-'+id);if(el)el.classList.remove('show');const inp=document.getElementById('f-'+id);if(inp)inp.classList.remove('err');}
+function validate() {
+  let ok=true;
+  const v=id=>document.getElementById(id)?.value.trim();
+  ['company','dealType','invoiceAmount','aum','contactName','contactEmail','contactMobile','repName','repEmail'].forEach(clearErr);
+  document.getElementById('err-events').classList.remove('show');
+  if (!v('f-company')){showErr('company');ok=false;}
+  if (!v('f-dealType')){showErr('dealType');ok=false;}
+  const amt=Number(v('f-invoiceAmount'));if(!amt||amt<=0){showErr('invoiceAmount');ok=false;}
+  const aum=Number(v('f-aum'));if(isNaN(aum)||aum<0){showErr('aum');ok=false;}
+  if(!v('f-contactName')){showErr('contactName');ok=false;}
+  if(!v('f-contactEmail')||!v('f-contactEmail').includes('@')){showErr('contactEmail');ok=false;}
+  if(!v('f-contactMobile')){showErr('contactMobile');ok=false;}
+  if(!v('f-repName')){showErr('repName');ok=false;}
+  if(!v('f-repEmail')||!v('f-repEmail').includes('@')){showErr('repEmail');ok=false;}
+  const type=v('f-dealType');
+  const checked=[...document.querySelectorAll('input[name="event"]:checked')].map(e=>e.value);
+  if(type==='Event Only'&&checked.length===0){document.getElementById('err-events').classList.add('show');ok=false;}
+  if((type==='Platform Renewal'||type==='New Client')&&!v('f-subEnd')){showErr('subEnd');ok=false;}
+  return ok;
+}
+async function submitDeal(e) {
+  e.preventDefault();
+  if (!validate()) return;
+  const v=id=>document.getElementById(id)?.value.trim();
+  const checked=[...document.querySelectorAll('input[name="event"]:checked')].map(el=>el.value);
+  const type=v('f-dealType');
+  const payload={
+    company:v('f-company'),dealType:type,
+    invoiceAmount:Number(v('f-invoiceAmount')),aumDollars:Number(v('f-aum')),
+    primaryContact:{name:v('f-contactName'),email:v('f-contactEmail'),mobile:v('f-contactMobile')},
+    events:checked,subscriptionEndDate:(type!=='Event Only')?(v('f-subEnd')||null):null,
+    salesRepName:v('f-repName'),salesRepEmail:v('f-repEmail'),
+  };
+  const btn=document.getElementById('btn-submit');
+  btn.disabled=true;btn.textContent='Creating…';
+  try {
+    const res=await fetch('/api/deals',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error||'Failed');
+    closePanel();resetForm();
+  } catch(err){alert('Error: '+err.message);}
+  finally{btn.disabled=false;btn.textContent='Create Deal →';}
+}
+function resetForm(){
+  document.getElementById('deal-form').reset();
+  ['company','dealType','invoiceAmount','aum','contactName','contactEmail','contactMobile','repName','repEmail','events','subEnd'].forEach(clearErr);
+  document.getElementById('csm-preview').style.display='none';
+  document.getElementById('sub-end-row').classList.remove('hidden');
+}
+function openPanel(){
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('f-company').focus();
+}
+function closePanel(){
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('panel').classList.remove('open');
+}
+
+// ── SSE ───────────────────────────────────────────────────────────────────────
+function connectSSE() {
+  const es = new EventSource('/api/events');
+
+  es.addEventListener('update', e => {
+    const { dealId, state } = JSON.parse(e.data);
+    if (states[dealId] !== undefined) {
+      states[dealId] = state;
+      placeCard(dealId, true);
+      updateKpis();
+      if (activeDetailId === dealId) {
+        renderDetailShell();
+        refreshDetailArtifacts(dealId);
+      }
+    }
+  });
+
+  es.addEventListener('newdeal', e => {
+    const { deal, state } = JSON.parse(e.data);
+    deals[deal.id]  = deal;
+    states[deal.id] = state;
+    placeCard(deal.id, true);
+    updateKpis();
+  });
+
+  es.addEventListener('reset', () => {
+    // Remove runtime deals (not in original seed set)
+    for (const id of Object.keys(deals)) {
+      if (!seedDealIds.has(id)) {
+        document.getElementById('kcard-' + id)?.remove();
+        delete deals[id];
+        delete states[id];
+        delete dealCols[id];
+      }
+    }
+    // Reset seed deal states and rebuild cards
+    for (const id of seedDealIds) {
+      states[id] = { dealId:id, company:deals[id]?.company||'', stages:{A:'pending',B:'pending',C:'pending',D:'pending',E:'pending',F:'pending',G:'pending'}, auditLog:[] };
+      dealCols[id] = null;
+      document.getElementById('kcard-' + id)?.remove();
+    }
+    for (const id of seedDealIds) {
+      placeCard(id, false);
+    }
+    updateKpis();
+    document.getElementById('btn-run').disabled    = false;
+    document.getElementById('btn-run').textContent = '▶ Run All Deals';
+    document.getElementById('btn-reset').disabled  = false;
+  });
+
+  es.addEventListener('complete', () => {
+    document.getElementById('btn-run').disabled    = false;
+    document.getElementById('btn-run').textContent = '▶ Run Again';
+    document.getElementById('btn-reset').disabled  = false;
+  });
+
+  es.onerror = () => setTimeout(connectSSE, 2000);
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+async function doRun() {
+  document.getElementById('btn-run').disabled    = true;
+  document.getElementById('btn-run').textContent = 'Running…';
+  document.getElementById('btn-reset').disabled  = true;
+  await fetch('/api/run', { method: 'POST' });
+}
+async function doReset() {
+  document.getElementById('btn-reset').disabled = true;
+  await fetch('/api/reset', { method: 'POST' });
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function init() {
+  buildEventGrid();
+  buildBoard();
+
+  const data = await fetch('/api/deals').then(r => r.json());
+  for (const item of data) {
+    if (!item) continue;
+    deals[item.id]  = item;
+    states[item.id] = item.state;
+  }
+  for (const id of Object.keys(deals)) {
+    seedDealIds.add(id);
+    placeCard(id, false);
+  }
+  updateKpis();
+  connectSSE();
+}
+
+init();
+</script>
+</body>
+</html>
