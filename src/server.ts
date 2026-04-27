@@ -191,7 +191,7 @@ async function processBulk(): Promise<void> {
 
 // ── Routes ─────────────────────────────────────────────────────────────────────
 
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(path.join(process.cwd(), 'public')));
 
 // All deals + their current state (for initial page load)
 app.get('/api/deals', (_req, res) => {
