@@ -3,1451 +3,1342 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iConnections — Onboarding Dashboard</title>
+<title>iConnections Onboarding</title>
 <style>
+/* ── Variables ─────────────────────────────────────────────────────────── */
 :root {
-  --purple:        #6A2B7E;
-  --purple-mid:    #8b3da0;
-  --purple-light:  #f3eaf7;
-  --purple-border: #d9b8e8;
-  --purple-deep:   #3d1a4a;
-  --white:         #ffffff;
-  --text:          #0f0f13;
-  --text-secondary:#4b5563;
-  --muted:         #6b7280;
-  --border:        #e5e7eb;
-  --border-light:  #f0e8f5;
-  --bg:            #f7f5fa;
-  --surface:       #ffffff;
-  --danger:        #dc2626;
-  --danger-light:  #fee2e2;
-  --success:       #059669;
-  --success-light: #d1fae5;
-  --warning:       #d97706;
-  --warning-light: #fef3c7;
-  --manual:        #f97316;
-  --manual-light:  #fff7ed;
-  --info:          #0284c7;
-  --info-light:    #e0f2fe;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; }
-body { font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; font-size: 13px; }
+  --brand:        #6A2B7E;
+  --brand-hover:  #7D3494;
+  --brand-dark:   #4A1A5E;
+  --brand-light:  #F3ECF7;
+  --brand-muted:  #EDE0F3;
 
-/* ── Header ── */
-header {
-  background: linear-gradient(135deg, var(--purple-deep) 0%, var(--purple) 100%);
-  color: var(--white); padding: 0 20px; height: 52px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: space-between;
-  box-shadow: 0 2px 12px rgba(61,26,74,0.5); z-index: 20; position: relative;
-}
-.logo { display: flex; align-items: center; gap: 10px; }
-.logo-mark { width: 28px; height: 28px; background: rgba(255,255,255,0.15); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; letter-spacing: -1px; border: 1px solid rgba(255,255,255,0.2); }
-.logo-text { font-size: 14px; font-weight: 700; letter-spacing: -0.3px; }
-.logo-sub  { font-size: 11px; opacity: 0.5; font-weight: 400; margin-left: 6px; }
-.header-center { display: flex; align-items: center; gap: 16px; }
-.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 2px rgba(34,197,94,0.3); animation: live-pulse 2s ease-in-out infinite; flex-shrink: 0; }
-@keyframes live-pulse { 0%,100%{box-shadow:0 0 0 2px rgba(34,197,94,0.3)} 50%{box-shadow:0 0 0 5px rgba(34,197,94,0)} }
-.live-label { font-size: 10.5px; font-weight: 700; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.08em; }
-.header-btns { display: flex; gap: 6px; }
-button { font-family: inherit; font-size: 12px; font-weight: 600; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; transition: all 0.15s; }
-button:active:not(:disabled) { transform: scale(0.97); }
-button:disabled { opacity: 0.38; cursor: not-allowed; }
-.btn-ghost  { background: rgba(255,255,255,0.1); color: var(--white); border: 1px solid rgba(255,255,255,0.22); }
-.btn-ghost:hover:not(:disabled)  { background: rgba(255,255,255,0.2); }
-.btn-white  { background: var(--white); color: var(--purple); }
-.btn-white:hover:not(:disabled)  { background: #f5eefa; }
-.btn-purple { background: var(--purple); color: var(--white); }
-.btn-purple:hover:not(:disabled) { background: var(--purple-mid); }
-.btn-new    { background: rgba(255,255,255,0.92); color: var(--purple); font-weight: 700; }
-.btn-new:hover:not(:disabled)    { background: var(--white); }
-.btn-danger { background: #dc2626; color: var(--white); }
-.btn-danger:hover:not(:disabled) { background: #b91c1c; }
-.btn-sm { padding: 4px 10px; font-size: 11px; }
-.btn-manual { background: var(--manual-light); color: var(--manual); border: 1px solid #fed7aa; }
-.btn-manual:hover:not(:disabled) { background: #ffedd5; }
+  --sidebar-bg:   #160824;
+  --sidebar-hover: rgba(106,43,126,0.25);
+  --sidebar-active: rgba(106,43,126,0.45);
+  --sidebar-text:  rgba(255,255,255,0.62);
+  --sidebar-head:  rgba(255,255,255,0.35);
 
-/* ── KPI bar ── */
-.kpi-bar {
-  background: var(--surface); border-bottom: 1px solid var(--border);
-  padding: 0 20px; height: 44px; flex-shrink: 0;
-  display: flex; align-items: center; gap: 0;
-}
-.kpi { display: flex; align-items: baseline; gap: 5px; padding: 0 16px; }
-.kpi:first-child { padding-left: 0; }
-.kpi-val  { font-size: 17px; font-weight: 800; color: var(--purple); font-variant-numeric: tabular-nums; }
-.kpi-lbl  { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
-.kpi-sep  { width: 1px; height: 18px; background: var(--border); flex-shrink: 0; }
-.kpi-right { margin-left: auto; display: flex; align-items: center; gap: 12px; padding-left: 16px; border-left: 1px solid var(--border); }
-.progress-wrap { display: flex; align-items: center; gap: 8px; }
-.progress-track { width: 90px; height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
-.progress-fill  { height: 100%; background: linear-gradient(90deg, var(--purple) 0%, var(--purple-mid) 100%); border-radius: 99px; width: 0%; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
-.progress-pct   { font-size: 12px; font-weight: 800; color: var(--purple); }
-.kpi-needs-followup { background: var(--manual-light); color: var(--manual); border: 1px solid #fed7aa; border-radius: 6px; padding: 2px 9px; font-size: 10.5px; font-weight: 700; white-space: nowrap; }
+  --bg:       #F5F6F8;
+  --surface:  #FFFFFF;
+  --border:   #E4E6EA;
+  --border-2: #D1D5DB;
 
-/* ── Filter row ── */
-.filter-row {
-  background: var(--surface); border-bottom: 1px solid var(--border);
-  padding: 0 20px; height: 38px; flex-shrink: 0;
+  --text-1: #111827;
+  --text-2: #4B5563;
+  --text-3: #9CA3AF;
+
+  --green:    #059669; --green-bg:  #D1FAE5;
+  --blue:     #2563EB; --blue-bg:   #DBEAFE;
+  --red:      #DC2626; --red-bg:    #FEE2E2;
+  --amber:    #D97706; --amber-bg:  #FEF3C7;
+  --orange:   #EA580C; --orange-bg: #FFF7ED;
+  --gray:     #6B7280; --gray-bg:   #F3F4F6;
+
+  --radius: 6px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow:    0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* ── Reset ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+       background: var(--bg); color: var(--text-1); font-size: 14px; line-height: 1.5;
+       -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; border: none; background: none; font: inherit; }
+input, select, textarea { font: inherit; }
+table { border-collapse: collapse; width: 100%; }
+
+/* ── App Layout ────────────────────────────────────────────────────────── */
+#app { display: flex; height: 100vh; overflow: hidden; }
+
+/* ── Sidebar ───────────────────────────────────────────────────────────── */
+#sidebar {
+  width: 220px; flex-shrink: 0;
+  background: var(--sidebar-bg);
+  display: flex; flex-direction: column;
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+.sb-brand {
+  padding: 20px 16px 16px;
   display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
 }
-.filter-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); white-space: nowrap; }
-.chip-group   { display: flex; gap: 4px; }
-.chip {
-  font-family: inherit; font-size: 11px; font-weight: 600;
-  padding: 3px 10px; border-radius: 99px; cursor: pointer;
-  border: 1.5px solid var(--border); background: var(--bg); color: var(--muted);
-  transition: all 0.15s;
+.sb-logo {
+  width: 30px; height: 30px; border-radius: 7px;
+  background: var(--brand);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
 }
-.chip:hover  { border-color: var(--purple-border); color: var(--purple); background: var(--purple-light); }
-.chip.active { border-color: var(--purple); background: var(--purple); color: var(--white); }
-.chip:active { transform: scale(0.96); }
-.filter-sep  { width: 1px; height: 16px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
-.filter-spacer { flex: 1; }
-.filter-search { display: flex; align-items: center; gap: 6px; }
-.filter-search input { font-family: inherit; font-size: 11.5px; border: 1.5px solid var(--border); border-radius: 6px; padding: 3px 9px; outline: none; width: 160px; color: var(--text); background: var(--bg); }
-.filter-search input:focus { border-color: var(--purple); }
+.sb-name { font-weight: 700; font-size: 14px; color: #fff; letter-spacing: -0.01em; }
+.sb-sub  { font-size: 11px; color: var(--sidebar-text); margin-top: 1px; }
 
-/* ── Kanban ── */
-.kanban-wrap { flex: 1; overflow-x: auto; overflow-y: hidden; padding: 12px 16px 0; display: flex; align-items: stretch; }
-.kanban-board { display: flex; gap: 8px; align-items: flex-start; min-height: 100%; padding-bottom: 16px; }
-.kanban-col { width: 196px; flex-shrink: 0; display: flex; flex-direction: column; height: 100%; }
-.col-head {
-  background: var(--purple-light); border: 1px solid var(--purple-border);
-  border-radius: 8px 8px 0 0; padding: 7px 10px;
-  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+.sb-section { padding: 12px 8px 4px; }
+.sb-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--sidebar-head);
+  padding: 0 8px 6px;
 }
-.col-head.stage-G     { background: var(--purple); border-color: var(--purple); }
-.col-head.stage-G .col-title  { color: var(--white); }
-.col-head.stage-G .col-count  { background: rgba(255,255,255,0.25); color: var(--white); }
-.col-head.stage-halt  { background: var(--danger-light); border-color: #fca5a5; }
-.col-head.stage-halt .col-title { color: var(--danger); }
-.col-head.stage-followup { background: var(--manual-light); border-color: #fed7aa; }
-.col-head.stage-followup .col-title { color: var(--manual); }
-.col-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--purple); }
-.col-count { font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 99px; background: var(--purple); color: var(--white); min-width: 18px; text-align: center; }
-.col-body {
-  flex: 1; overflow-y: auto; background: var(--bg);
-  border: 1px solid var(--purple-border); border-top: none;
-  border-radius: 0 0 8px 8px; padding: 6px 5px;
-  display: flex; flex-direction: column; gap: 5px;
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: 5px;
+  color: var(--sidebar-text); font-size: 13.5px; font-weight: 500;
+  transition: background 0.12s, color 0.12s;
+  cursor: pointer; margin-bottom: 1px;
 }
+.nav-item:hover  { background: var(--sidebar-hover); color: rgba(255,255,255,0.88); }
+.nav-item.active { background: var(--sidebar-active); color: #fff; }
+.nav-item svg    { flex-shrink: 0; opacity: 0.8; }
+.nav-item.active svg { opacity: 1; }
 
-/* ── Kanban card ── */
-.kcard {
-  background: var(--surface); border-radius: 7px;
-  border: 1px solid var(--border); border-left: 3px solid var(--purple);
-  padding: 8px 9px; cursor: pointer;
-  transition: box-shadow 0.18s, transform 0.18s;
-  position: relative;
+.sb-spacer { flex: 1; }
+.sb-footer {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: center; gap: 8px;
 }
-.kcard:hover { box-shadow: 0 4px 16px rgba(106,43,126,0.15); transform: translateY(-1px); }
-.kcard.running { border-left-color: var(--purple); box-shadow: 0 0 0 2px rgba(106,43,126,0.18); }
-.kcard.failed  { border-left-color: var(--danger); }
-.kcard.followup{ border-left-color: var(--manual); }
-.kcard.has-manual { border-left-color: var(--manual); }
-.kcard-company { font-size: 12px; font-weight: 700; line-height: 1.25; margin-bottom: 4px; color: var(--text); }
-.kcard-row { display: flex; align-items: center; gap: 4px; margin-top: 3px; flex-wrap: wrap; }
-.kcard-badge { font-size: 9px; font-weight: 700; padding: 1.5px 6px; border-radius: 99px; background: var(--purple-light); color: var(--purple); white-space: nowrap; }
-.kcard-badge.amt   { background: transparent; border: 1px solid var(--purple-border); }
-.kcard-badge.tier  { background: var(--success-light); color: var(--success); border: 1px solid #a7f3d0; }
-.kcard-badge.fail  { background: var(--danger-light); color: var(--danger); }
-.kcard-badge.followup { background: var(--manual-light); color: var(--manual); }
-.kcard-badge.manual-count { background: var(--manual); color: white; }
-
-/* Stage mini-bar on card */
-.kcard-stages { display: flex; align-items: center; gap: 2px; margin-top: 5px; }
-.stage-pip {
-  width: 18px; height: 5px; border-radius: 2px; flex-shrink: 0;
+.conn-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--gray); flex-shrink: 0;
   transition: background 0.3s;
 }
-.stage-pip.pending  { background: var(--border); }
-.stage-pip.running  { background: var(--purple); animation: pip-pulse 0.9s ease-in-out infinite; }
-.stage-pip.complete { background: var(--purple); }
-.stage-pip.failed   { background: var(--danger); }
-.stage-pip.skipped  { background: var(--border); }
-@keyframes pip-pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+.conn-dot.live { background: var(--green); box-shadow: 0 0 0 2px rgba(5,150,105,0.25); }
+.conn-dot.err  { background: var(--red); }
 
-.kcard-running { display: flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 10px; color: var(--purple); font-weight: 700; }
-.pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--purple); animation: pulse-dot 0.85s ease-in-out infinite; flex-shrink: 0; }
-@keyframes pulse-dot { 0%,100%{box-shadow:0 0 0 0 rgba(106,43,126,0.45)} 50%{box-shadow:0 0 0 4px rgba(106,43,126,0)} }
+/* ── Main area ─────────────────────────────────────────────────────────── */
+#main-wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
-.kcard-footer { display: flex; align-items: center; gap: 5px; margin-top: 4px; }
-.kcard-footer-item { font-size: 9.5px; color: var(--muted); display: flex; align-items: center; gap: 2px; }
-.kcard-footer-item.manual { color: var(--manual); font-weight: 700; }
-
-/* Card animation */
-@keyframes card-enter { from{opacity:0;transform:translateY(-8px) scale(0.96)} to{opacity:1;transform:none} }
-@keyframes card-exit  { from{opacity:1;transform:none} to{opacity:0;transform:translateY(8px) scale(0.96)} }
-.card-entering { animation: card-enter 0.3s ease forwards; }
-.card-exiting  { animation: card-exit 0.25s ease forwards; pointer-events: none; }
-
-/* ── New Deal slide-over ── */
-#overlay { display:none; position:fixed; inset:0; z-index:30; background:rgba(0,0,0,0.5); backdrop-filter:blur(2px); }
-#overlay.open { display:block; }
-#panel {
-  position:fixed; top:0; right:0; bottom:0; width:480px;
-  background:var(--surface); box-shadow:-8px 0 40px rgba(0,0,0,0.2);
-  display:flex; flex-direction:column;
-  transform:translateX(100%); transition:transform 0.28s cubic-bezier(0.4,0,0.2,1); z-index:31;
+/* ── Topbar ────────────────────────────────────────────────────────────── */
+#topbar {
+  height: 56px; flex-shrink: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 24px;
+  z-index: 10;
 }
-#panel.open { transform:translateX(0); }
-.panel-header { background: linear-gradient(135deg, var(--purple-deep), var(--purple)); color:var(--white); padding:0 20px; height:52px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-.panel-header h2 { font-size:14px; font-weight:700; }
-.panel-close { background:none; color:var(--white); border:none; font-size:20px; line-height:1; padding:4px 8px; cursor:pointer; opacity:0.7; border-radius:4px; font-weight:300; }
-.panel-close:hover { opacity:1; background:rgba(255,255,255,0.15); }
-.panel-body { flex:1; overflow-y:auto; padding:18px 20px 8px; }
-.panel-footer { padding:12px 20px; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:flex-end; flex-shrink:0; }
-.panel-footer button { min-width:100px; padding:8px 16px; }
-.form-section { margin-bottom:18px; }
-.form-section-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--purple); margin-bottom:9px; padding-bottom:4px; border-bottom:1px solid var(--purple-light); }
-.form-row { display:flex; gap:10px; margin-bottom:10px; }
-.form-row .field { flex:1; }
-.field { margin-bottom:10px; }
-label { display:block; font-size:11px; font-weight:600; color:var(--text); margin-bottom:3px; }
-label .req { color:var(--purple); }
-input[type="text"],input[type="email"],input[type="number"],input[type="date"],select {
-  width:100%; font-family:inherit; font-size:12.5px; padding:7px 10px;
-  border:1.5px solid var(--border); border-radius:6px; color:var(--text); background:var(--surface);
-  outline:none; transition:border-color 0.15s; appearance:none; -webkit-appearance:none;
+#breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-3); flex-shrink: 0;
 }
-input:focus,select:focus { border-color:var(--purple); }
-input.err,select.err { border-color:var(--danger); }
-.field-hint { font-size:10px; color:var(--muted); margin-top:3px; }
-.field-err  { font-size:10px; color:var(--danger); margin-top:3px; display:none; }
-.field-err.show { display:block; }
-.event-grid { display:flex; flex-direction:column; gap:5px; }
-.event-item { display:flex; align-items:center; gap:7px; cursor:pointer; }
-.event-item input[type="checkbox"] { width:14px; height:14px; accent-color:var(--purple); cursor:pointer; flex-shrink:0; }
-.event-item span { font-size:12px; }
-#sub-end-row { transition:opacity 0.2s; }
-#sub-end-row.hidden { opacity:0; pointer-events:none; height:0; overflow:hidden; margin:0; }
-#csm-preview { display:none; margin-top:10px; padding:8px 11px; background:var(--purple-light); border-radius:6px; border-left:3px solid var(--purple); font-size:11px; color:var(--purple); }
+#breadcrumb a { color: var(--text-3); }
+#breadcrumb a:hover { color: var(--brand); }
+#breadcrumb .crumb-cur { color: var(--text-2); font-weight: 500; }
+#breadcrumb .sep { color: var(--text-3); font-size: 12px; }
 
-/* ── Detail drawer ── */
-#detail-panel {
-  position:fixed; inset:0; background:var(--bg); z-index:50;
-  display:flex; flex-direction:column;
-  transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); overflow:hidden;
+.search-wrap {
+  flex: 1; position: relative; max-width: 400px; margin: 0 auto;
 }
-#detail-panel.open { transform:translateX(0); }
-.detail-header {
-  background: linear-gradient(135deg, var(--purple-deep), var(--purple));
-  color:var(--white); padding:0 20px; height:52px;
-  display:flex; align-items:center; gap:12px; flex-shrink:0;
-  box-shadow:0 2px 12px rgba(61,26,74,0.4);
+.search-wrap svg {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  color: var(--text-3); pointer-events: none;
 }
-.detail-back { background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); color:var(--white); padding:5px 12px; font-size:12px; border-radius:6px; cursor:pointer; flex-shrink:0; }
-.detail-back:hover { background:rgba(255,255,255,0.22); }
-.detail-title { flex:1; min-width:0; }
-.detail-title strong { font-size:15px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
-.detail-title span   { font-size:11px; opacity:0.6; }
-.detail-badge { font-size:10px; font-weight:700; padding:3px 9px; background:rgba(255,255,255,0.14); border-radius:99px; border:1px solid rgba(255,255,255,0.28); white-space: nowrap; }
-.detail-badge.manual-present { background: rgba(249,115,22,0.25); border-color: rgba(249,115,22,0.5); color: #fed7aa; }
+#gsearch {
+  width: 100%; height: 34px;
+  padding: 0 12px 0 34px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 20px; font-size: 13px; color: var(--text-1);
+  outline: none; transition: border 0.15s, box-shadow 0.15s;
+}
+#gsearch:focus {
+  border-color: var(--brand); background: var(--surface);
+  box-shadow: 0 0 0 3px var(--brand-light);
+}
+.gsearch-results {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  z-index: 100; max-height: 320px; overflow-y: auto;
+}
+.gsearch-results.hidden { display: none; }
+.gsearch-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.gsearch-item:last-child { border-bottom: none; }
+.gsearch-item:hover { background: var(--bg); }
+.gsearch-item-id { font-family: monospace; font-size: 12px; color: var(--brand); font-weight: 600; flex-shrink: 0; }
+.gsearch-item-name { font-weight: 500; flex: 1; }
 
-/* Meta strip */
-.detail-meta { background:var(--surface); border-bottom:1px solid var(--border); padding:8px 20px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; flex-shrink:0; }
-.meta-item { font-size:11.5px; color:var(--muted); }
-.meta-item strong { color:var(--text); font-weight:700; }
-.meta-item.payment-badge { background: var(--success-light); color: var(--success); font-weight: 700; padding: 2px 8px; border-radius: 99px; font-size: 10.5px; border: 1px solid #a7f3d0; }
-.meta-item.overdue-badge { background: var(--warning-light); color: var(--warning); font-weight: 700; padding: 2px 8px; border-radius: 99px; font-size: 10.5px; border: 1px solid #fcd34d; }
-.meta-item.followup-badge { background: var(--manual-light); color: var(--manual); font-weight: 700; padding: 2px 8px; border-radius: 99px; font-size: 10.5px; border: 1px solid #fed7aa; }
+.topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
-/* Pipeline bar */
-.detail-pipeline { background:var(--surface); border-bottom:1px solid var(--border); padding:10px 20px; display:flex; align-items:flex-start; flex-shrink:0; overflow-x:auto; gap:0; }
-.pipeline-step { display:flex; flex-direction:column; align-items:center; gap:3px; flex:1; min-width:68px; position:relative; }
-.pipeline-step:not(:last-child)::after { content:''; position:absolute; top:11px; left:calc(50% + 13px); right:calc(-50% + 13px); height:2px; background:var(--border); transition:background 0.3s; }
-.pipeline-step.done-step::after { background:var(--purple); }
-.pipeline-dot { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; flex-shrink:0; z-index:1; }
-.pipeline-dot.pending  { background:var(--border); color:var(--muted); }
-.pipeline-dot.running  { background:var(--purple); color:var(--white); animation:pulse-dot 0.85s ease-in-out infinite; }
-.pipeline-dot.complete { background:var(--purple); color:var(--white); }
-.pipeline-dot.failed   { background:var(--danger); color:var(--white); }
-.pipeline-lbl { font-size:9px; text-align:center; color:var(--muted); line-height:1.3; font-weight:500; }
-.pipeline-lbl.done   { color:var(--purple); font-weight:700; }
-.pipeline-lbl.active { color:var(--purple); font-weight:700; }
-.pipeline-dur { font-size:8.5px; color:var(--muted); text-align:center; font-variant-numeric:tabular-nums; }
-.pipeline-dur.has-dur { color: var(--purple); font-weight:600; }
+/* ── Page content ──────────────────────────────────────────────────────── */
+#page { flex: 1; overflow-y: auto; padding: 28px 28px 48px; }
 
-/* Tabs */
-.detail-tabs { background:var(--surface); border-bottom:1px solid var(--border); padding:0 18px; display:flex; gap:0; flex-shrink:0; }
-.tab-btn { background:none; border:none; border-bottom:2.5px solid transparent; color:var(--muted); font-size:12px; font-weight:500; padding:9px 14px; cursor:pointer; border-radius:0; transition:color 0.15s, border-color 0.15s; }
-.tab-btn:hover { color:var(--text); }
-.tab-btn.active { color:var(--purple); border-bottom-color:var(--purple); font-weight:700; }
-.tab-btn:active { transform:none; }
-.tab-count { display:inline-flex; align-items:center; justify-content:center; background:var(--purple-light); color:var(--purple); font-size:9px; font-weight:700; width:15px; height:15px; border-radius:99px; margin-left:4px; }
-.detail-body { flex:1; overflow-y:auto; padding:16px 20px 40px; }
+/* ── Buttons ───────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0 14px; height: 34px; border-radius: var(--radius);
+  font-size: 13.5px; font-weight: 500; transition: background 0.12s, opacity 0.12s;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--brand); color: white; }
+.btn-primary:hover { background: var(--brand-hover); }
+.btn-secondary {
+  background: var(--surface); color: var(--text-2);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { background: var(--bg); border-color: var(--border-2); }
+.btn-sm { height: 28px; padding: 0 10px; font-size: 12.5px; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
-/* Thread */
-.thread-list { display:flex; flex-direction:column; gap:8px; }
-.thread-item { border-radius:7px; border:1px solid var(--border); overflow:hidden; background:var(--surface); }
-.thread-item.outbound { border-left:3px solid var(--purple); }
-.thread-item.inbound  { border-left:3px solid #9ca3af; }
-.thread-head { padding:9px 12px; display:flex; align-items:flex-start; gap:9px; cursor:pointer; user-select:none; }
-.thread-head:hover { background:var(--bg); }
-.thread-avatar { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:800; flex-shrink:0; margin-top:1px; }
-.avatar-out { background:var(--purple); color:var(--white); }
-.avatar-in  { background:#e5e7eb; color:var(--muted); }
-.thread-meta { flex:1; min-width:0; }
-.thread-from    { font-size:12px; font-weight:700; }
-.thread-subject { font-size:11px; color:var(--muted); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.thread-addr    { font-size:10px; color:var(--muted); margin-top:1px; }
-.thread-time { font-size:10.5px; color:var(--muted); flex-shrink:0; margin-left:auto; }
-.thread-chevron { font-size:9px; color:var(--muted); margin-left:5px; transition:transform 0.2s; flex-shrink:0; align-self:center; }
-.thread-item.expanded .thread-chevron { transform:rotate(180deg); }
-.thread-body { display:none; border-top:1px solid var(--border); }
-.thread-item.expanded .thread-body { display:block; }
-.thread-body iframe { width:100%; border:none; min-height:150px; display:block; }
-.thread-body .reply-text { padding:12px 14px; font-size:12.5px; line-height:1.7; white-space:pre-wrap; color:var(--text); background:var(--bg); }
-.thread-type-badge { font-size:9px; font-weight:700; padding:1.5px 6px; border-radius:99px; flex-shrink:0; margin-left:4px; }
-.badge-invoice  { background:#dbeafe; color:#1e40af; }
-.badge-nudge1   { background:#fef3c7; color:#92400e; }
-.badge-nudge2   { background:#fee2e2; color:#991b1b; }
-.badge-csm      { background:var(--purple-light); color:var(--purple); }
-.badge-welcome  { background:#dcfce7; color:#166534; }
-.badge-reply    { background:#f3f4f6; color:#374151; border:1px solid var(--border); }
+/* ── Pills ─────────────────────────────────────────────────────────────── */
+.pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 11.5px; font-weight: 600; line-height: 1.6;
+  white-space: nowrap;
+}
+.pill-complete  { background: var(--green-bg);  color: var(--green);  }
+.pill-running   { background: var(--blue-bg);   color: var(--blue);   }
+.pill-pending   { background: var(--gray-bg);   color: var(--gray);   }
+.pill-failed    { background: var(--red-bg);    color: var(--red);    }
+.pill-followup  { background: var(--amber-bg);  color: var(--amber);  }
+.pill-manual    { background: var(--orange-bg); color: var(--orange); }
+.pill-enterprise{ background: var(--brand-light); color: var(--brand); }
+.pill-scale     { background: #EEF2FF; color: #4338CA; }
+.pill-new-client     { background: #ECFDF5; color: #047857; }
+.pill-platform-renewal { background: #EEF2FF; color: #4338CA; }
+.pill-event-only     { background: #FFF7ED; color: #9A3412; }
 
-/* Overview */
-.overview-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:9px; margin-bottom:18px; }
-.ov-card { background:var(--surface); border-radius:7px; border:1px solid var(--border); padding:11px 13px; }
-.ov-card-title { font-size:9px; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); margin-bottom:6px; font-weight:700; }
-.ov-card-body { font-size:11.5px; line-height:1.8; }
-.ov-card-body strong { color:var(--purple); }
-.ov-card.reasoning { border-left:3px solid var(--info); }
-.ov-card.reasoning .ov-card-title { color:var(--info); }
-.ov-card.tags-diff { border-left:3px solid var(--success); }
-.ov-card.manual-actions { border-left:3px solid var(--manual); }
-.ov-stage-list { display:flex; flex-direction:column; gap:4px; }
-.ov-stage-row { display:flex; align-items:flex-start; gap:8px; padding:6px 10px; border-radius:6px; font-size:11.5px; }
-.ov-stage-row.complete { background:var(--purple-light); }
-.ov-stage-row.running  { background:#fdf8ff; border:1px solid var(--purple-border); }
-.ov-stage-row.failed   { background:var(--danger-light); }
-.ov-stage-row.pending  { background:var(--bg); color:var(--muted); }
-.ov-dot { width:16px; height:16px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:800; margin-top:2px; }
-.ov-dot.complete { background:var(--purple); color:var(--white); }
-.ov-dot.running  { background:var(--purple); color:var(--white); animation:pulse-dot 0.85s ease-in-out infinite; }
-.ov-dot.failed   { background:var(--danger); color:var(--white); }
-.ov-dot.pending  { background:var(--border); }
-.stage-dur-badge { font-size:9.5px; color:var(--muted); margin-left:auto; font-variant-numeric:tabular-nums; background:var(--bg); padding:1px 6px; border-radius:4px; }
+/* ── Page header ───────────────────────────────────────────────────────── */
+.page-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 24px;
+}
+.page-head h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+.page-head p  { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+.page-head-actions { display: flex; gap: 8px; align-items: center; }
 
-/* Teams */
-.teams-list { display:flex; flex-direction:column; gap:8px; }
-.teams-mutation { background:var(--surface); border-radius:7px; border:1px solid var(--border); overflow:hidden; }
-.teams-mutation-head { padding:9px 12px; display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none; }
-.teams-mutation-head:hover { background:var(--bg); }
-.mutation-type-badge { font-size:9px; font-weight:700; padding:2px 7px; border-radius:99px; flex-shrink:0; }
-.badge-create { background:var(--purple-light); color:var(--purple); }
-.badge-patch  { background:var(--success-light); color:var(--success); border:1px solid #a7f3d0; }
-.mutation-reason { font-size:12px; font-weight:700; flex:1; }
-.mutation-time { font-size:10.5px; color:var(--muted); flex-shrink:0; }
-.teams-card-preview { display:none; border-top:1px solid var(--border); padding:12px 14px; background:var(--bg); }
-.teams-mutation.expanded .teams-card-preview { display:block; }
-.teams-checklist { list-style:none; padding:0; margin:6px 0; font-size:12px; line-height:1.9; }
-.teams-checklist li.checked   { color:var(--text); }
-.teams-checklist li.unchecked { color:var(--muted); }
-.teams-checklist em { font-style:normal; color:var(--muted); font-size:10.5px; }
+/* ── KPI cards ─────────────────────────────────────────────────────────── */
+.kpi-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px; margin-bottom: 24px;
+}
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+}
+.kpi-label { font-size: 11.5px; font-weight: 600; color: var(--text-3);
+             text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.kpi-value { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+.kpi-sub   { font-size: 12px; color: var(--text-3); margin-top: 5px; }
 
-/* Audit table */
-.audit-table { width:100%; border-collapse:collapse; font-size:11.5px; background:var(--surface); border-radius:8px; overflow:hidden; border:1px solid var(--border); }
-.audit-table th { background:var(--purple-deep); color:rgba(255,255,255,0.85); font-size:9.5px; text-transform:uppercase; letter-spacing:0.06em; padding:8px 12px; text-align:left; font-weight:700; }
-.audit-table td { padding:7px 12px; border-top:1px solid var(--border); vertical-align:top; font-size:11px; }
-.audit-table tr:hover td { background:var(--bg); }
-.audit-table tr.manual-row td { background:var(--manual-light); }
-.audit-table tr.manual-row:hover td { background:#ffedd5; }
-.audit-stage-dot { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; background:var(--purple); color:var(--white); border-radius:50%; font-size:8.5px; font-weight:800; }
-.audit-stage-dot.manual { background:var(--manual); }
-.audit-type-badge { font-size:9px; font-weight:700; padding:1.5px 6px; border-radius:99px; white-space:nowrap; }
-.audit-auto   { background:var(--purple-light); color:var(--purple); }
-.audit-manual { background:var(--manual-light); color:var(--manual); border:1px solid #fed7aa; }
-.audit-action { font-weight:600; color:var(--text); }
-.audit-data   { font-size:10px; color:var(--muted); margin-top:2px; font-family:ui-monospace,monospace; word-break:break-all; max-height:60px; overflow:hidden; cursor:pointer; }
-.audit-data.expanded { max-height:none; }
-.audit-ts { font-variant-numeric:tabular-nums; white-space:nowrap; }
+/* ── Cards / panels ────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow-sm);
+}
+.card-head {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-head h2 { font-size: 14px; font-weight: 600; }
+.card-body { padding: 20px; }
+.card-empty {
+  padding: 48px 20px; text-align: center;
+  color: var(--text-3); font-size: 13px;
+}
 
-/* Human intervention */
-.action-section { margin-bottom:16px; }
-.action-section-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--manual); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
-.action-section-title::after { content:''; flex:1; height:1px; background:#fed7aa; }
-.action-form { display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; background:var(--manual-light); border:1px solid #fed7aa; border-radius:7px; padding:10px 12px; }
-.action-form select, .action-form input { font-family:inherit; font-size:11.5px; padding:5px 9px; border:1.5px solid #fed7aa; border-radius:5px; background:var(--white); color:var(--text); outline:none; flex:1; min-width:130px; }
-.action-form select:focus, .action-form input:focus { border-color:var(--manual); }
+/* ── Activity feed ─────────────────────────────────────────────────────── */
+.activity-item {
+  display: flex; gap: 12px; padding: 11px 20px;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border-2); flex-shrink: 0; margin-top: 5px;
+}
+.activity-dot.manual   { background: var(--orange); }
+.activity-dot.complete { background: var(--green); }
+.activity-dot.failed   { background: var(--red); }
+.activity-dot.followup { background: var(--amber); }
+.activity-dot.running  { background: var(--blue); }
+.activity-body { flex: 1; min-width: 0; }
+.activity-line { font-size: 13px; line-height: 1.5; }
+.activity-line strong { font-weight: 600; }
+.activity-line a:hover { color: var(--brand); text-decoration: underline; }
+.activity-time { font-size: 11.5px; color: var(--text-3); white-space: nowrap; margin-top: 3px; }
 
-/* Empty state */
-.empty-state { text-align:center; padding:40px 20px; color:var(--muted); font-size:12px; }
-.empty-state strong { display:block; font-size:13.5px; color:var(--text); margin-bottom:4px; }
+/* ── Table ─────────────────────────────────────────────────────────────── */
+.tbl-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm);
+}
+.tbl-toolbar {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.tbl-search-wrap { position: relative; }
+.tbl-search-wrap svg {
+  position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+  color: var(--text-3); pointer-events: none;
+}
+.tbl-search {
+  height: 30px; padding: 0 10px 0 30px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 13px; width: 220px;
+  outline: none;
+}
+.tbl-search:focus { border-color: var(--brand); background: white; }
 
-/* Scrollbars */
-::-webkit-scrollbar { width:5px; height:5px; }
-::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:var(--purple-border); border-radius:99px; }
-::-webkit-scrollbar-thumb:hover { background:var(--purple-mid); }
+.filter-chips { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+.filter-label { font-size: 11px; color: var(--text-3); font-weight: 600; white-space: nowrap; }
+.chip {
+  height: 26px; padding: 0 10px;
+  border-radius: 20px; font-size: 11.5px; font-weight: 500;
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text-2); cursor: pointer; transition: all 0.1s;
+  white-space: nowrap;
+}
+.chip:hover  { border-color: var(--brand); color: var(--brand); }
+.chip.active { background: var(--brand-light); border-color: var(--brand); color: var(--brand); font-weight: 600; }
+
+.tbl-count { margin-left: auto; font-size: 12px; color: var(--text-3); white-space: nowrap; }
+
+table th {
+  padding: 9px 14px; text-align: left;
+  font-size: 11.5px; font-weight: 600; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  white-space: nowrap; cursor: pointer; user-select: none;
+}
+table th:hover { color: var(--text-2); }
+table th.sorted { color: var(--brand); }
+table th .sa { display: inline-block; margin-left: 3px; font-size: 10px; }
+
+table td {
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+  font-size: 13px; vertical-align: middle;
+}
+table tr:last-child td { border-bottom: none; }
+table tr.clickable { cursor: pointer; transition: background 0.1s; }
+table tr.clickable:hover td { background: var(--bg); }
+
+.cell-id  { font-family: monospace; font-size: 12px; font-weight: 600; color: var(--brand); }
+.cell-num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+
+.pipeline-pips { display: flex; gap: 2px; }
+.pip {
+  width: 7px; height: 7px; border-radius: 1.5px;
+  background: var(--bg); border: 1px solid var(--border-2);
+}
+.pip.complete { background: var(--green);  border-color: transparent; }
+.pip.running  { background: var(--blue);   border-color: transparent; }
+.pip.failed   { background: var(--red);    border-color: transparent; }
+
+.manual-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 10.5px; font-weight: 600; color: var(--orange);
+  background: var(--orange-bg); padding: 1px 6px; border-radius: 10px;
+}
+
+/* ── Deal detail header ────────────────────────────────────────────────── */
+.deal-header {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px 24px;
+  margin-bottom: 20px; box-shadow: var(--shadow-sm);
+}
+.deal-header-top {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+}
+.deal-header-title h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.deal-meta {
+  display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap;
+}
+.deal-id { font-family: monospace; font-size: 12px; background: var(--bg);
+           padding: 2px 8px; border-radius: 4px; color: var(--brand); font-weight: 600;
+           border: 1px solid var(--border); }
+.deal-header-stats {
+  display: flex; gap: 24px; margin-top: 16px; padding-top: 16px;
+  border-top: 1px solid var(--border); flex-wrap: wrap;
+}
+.deal-stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase;
+                   letter-spacing: 0.05em; color: var(--text-3); }
+.deal-stat-value { font-size: 17px; font-weight: 700; margin-top: 2px; letter-spacing: -0.01em; }
+.deal-stat-value.brand { color: var(--brand); }
+
+/* ── Tabs ──────────────────────────────────────────────────────────────── */
+.tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+.tab-btn {
+  padding: 10px 18px; font-size: 13.5px; font-weight: 500; color: var(--text-3);
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+  cursor: pointer; transition: color 0.15s, border-color 0.15s; white-space: nowrap;
+}
+.tab-btn:hover  { color: var(--text-1); }
+.tab-btn.active { color: var(--brand); border-bottom-color: var(--brand); font-weight: 600; }
+.tab-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; padding: 0 5px;
+  background: var(--gray-bg); border-radius: 9px;
+  font-size: 10.5px; font-weight: 700; margin-left: 5px; color: var(--text-3);
+}
+.tab-btn.active .tab-count { background: var(--brand-light); color: var(--brand); }
+
+/* ── Detail layout ─────────────────────────────────────────────────────── */
+.detail-layout { display: grid; grid-template-columns: 1fr 256px; gap: 20px; }
+.sidebar-section {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 12px; box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.sidebar-section-head {
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--text-3);
+  background: var(--bg);
+}
+.sidebar-row {
+  padding: 8px 14px; border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.sidebar-row:last-child { border-bottom: none; }
+.sidebar-row-label { font-size: 10.5px; color: var(--text-3); font-weight: 600;
+                     text-transform: uppercase; letter-spacing: 0.04em; }
+.sidebar-row-value { font-size: 12.5px; color: var(--text-1); font-weight: 500; word-break: break-all; }
+.sidebar-row-value.mono { font-family: monospace; font-size: 11.5px; color: var(--brand); }
+
+/* ── Timeline ──────────────────────────────────────────────────────────── */
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before {
+  content: ''; position: absolute; left: 11px; top: 6px; bottom: 6px;
+  width: 2px; background: var(--border);
+}
+.tl-item { position: relative; padding: 0 0 24px 20px; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-dot {
+  position: absolute; left: -20px; top: 3px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--surface); border: 2px solid var(--border-2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; z-index: 1;
+}
+.tl-dot.complete { border-color: var(--green); color: var(--green); }
+.tl-dot.running  { border-color: var(--blue);  color: var(--blue);  }
+.tl-dot.failed   { border-color: var(--red);   color: var(--red);   }
+.tl-dot.pending  { border-color: var(--border-2); color: var(--text-3); }
+.tl-dot.manual   { border-color: var(--orange); background: var(--orange-bg); color: var(--orange); }
+
+.tl-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 16px; box-shadow: var(--shadow-sm);
+}
+.tl-card.manual-card  { border-left: 3px solid var(--orange); }
+.tl-card.failed-card  { border-left: 3px solid var(--red); }
+.tl-card.followup-card{ border-left: 3px solid var(--amber); }
+
+.tl-card-head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;
+}
+.tl-stage-badge {
+  width: 22px; height: 22px; border-radius: 5px;
+  background: var(--brand); color: white; font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.tl-stage-badge.dim    { background: var(--gray-bg);   color: var(--gray); }
+.tl-stage-badge.fail   { background: var(--red-bg);    color: var(--red); }
+.tl-stage-badge.manual { background: var(--orange-bg); color: var(--orange); }
+.tl-title  { font-size: 13px; font-weight: 600; flex: 1; }
+.tl-time   { font-size: 11.5px; color: var(--text-3); }
+.tl-dur    { font-size: 11px; color: var(--text-3); background: var(--bg);
+             padding: 1px 6px; border-radius: 4px; }
+.tl-rows   { display: flex; flex-direction: column; gap: 4px; }
+.tl-row    { display: flex; gap: 8px; font-size: 12.5px; }
+.tl-k { color: var(--text-3); width: 110px; flex-shrink: 0; }
+.tl-v { color: var(--text-2); word-break: break-all; }
+.tl-v.mono { font-family: monospace; font-size: 11.5px; color: var(--brand); }
+
+/* ── Email cards ───────────────────────────────────────────────────────── */
+.email-list { display: flex; flex-direction: column; gap: 12px; }
+.email-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden;
+}
+.email-card.inbound  { border-left: 3px solid var(--blue); }
+.email-card.outbound { border-left: 3px solid var(--brand); }
+.email-card-head {
+  padding: 10px 16px; background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.email-dir {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; padding: 2px 7px; border-radius: 3px; flex-shrink: 0;
+}
+.email-dir.out { background: var(--brand-light); color: var(--brand); }
+.email-dir.in  { background: var(--blue-bg); color: var(--blue); }
+.email-type-lbl { font-size: 12.5px; font-weight: 600; flex: 1; }
+.email-ts { font-size: 11.5px; color: var(--text-3); white-space: nowrap; }
+.email-fields { padding: 8px 16px; border-bottom: 1px solid var(--border); }
+.ef { display: flex; gap: 8px; font-size: 12.5px; padding: 2px 0; }
+.ef-k { width: 46px; color: var(--text-3); font-weight: 600; flex-shrink: 0; }
+.ef-v { color: var(--text-2); }
+.email-subj { padding: 10px 16px; font-size: 13px; font-weight: 600;
+              border-bottom: 1px solid var(--border); }
+.email-body { padding: 14px 16px; font-size: 13px; line-height: 1.7;
+              white-space: pre-wrap; color: var(--text-2); max-height: 240px;
+              overflow-y: auto; }
+
+/* ── Audit table ───────────────────────────────────────────────────────── */
+.audit-tbl td:first-child { font-size: 11.5px; color: var(--text-3); white-space: nowrap; }
+.audit-action { font-family: monospace; font-size: 12px; }
+.audit-data {
+  font-family: monospace; font-size: 11px; color: var(--text-3);
+  max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  cursor: help;
+}
+tr.audit-manual td { background: rgba(234,88,12,0.04); }
+tr.audit-manual .audit-action { color: var(--orange); }
+
+/* ── Manual form ───────────────────────────────────────────────────────── */
+.manual-form {
+  background: var(--orange-bg); border: 1px solid rgba(234,88,12,0.25);
+  border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px;
+}
+.manual-form h3 { font-size: 12.5px; font-weight: 600; color: var(--orange); margin-bottom: 10px; }
+.manual-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.f-input {
+  height: 32px; padding: 0 10px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: 13px; outline: none; flex: 1; min-width: 140px;
+  background: var(--surface);
+}
+.f-input:focus { border-color: var(--orange); }
+
+/* ── New deal form ─────────────────────────────────────────────────────── */
+.form-section { margin-bottom: 24px; }
+.form-section-title {
+  font-size: 11.5px; font-weight: 700; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 14px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid.g3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group.s2 { grid-column: span 2; }
+label { font-size: 12px; font-weight: 600; color: var(--text-2); }
+.fc {
+  height: 36px; padding: 0 12px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: 13.5px; color: var(--text-1); background: var(--surface);
+  outline: none; transition: border 0.15s, box-shadow 0.15s;
+}
+.fc:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-light); }
+select.fc { cursor: pointer; }
+.fhint { font-size: 11px; color: var(--text-3); }
+
+/* ── Attention panel ───────────────────────────────────────────────────── */
+.attention-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background 0.1s;
+}
+.attention-item:last-child { border-bottom: none; }
+.attention-item:hover { background: var(--bg); }
+.att-icon {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 13px;
+}
+.att-icon.followup { background: var(--amber-bg); }
+.att-icon.failed   { background: var(--red-bg); }
+.att-icon.manual   { background: var(--orange-bg); }
+.att-body { flex: 1; min-width: 0; }
+.att-name { font-weight: 600; font-size: 13px; }
+.att-sub  { font-size: 11.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── Home grid ─────────────────────────────────────────────────────────── */
+.home-grid { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
+
+/* ── Toast ─────────────────────────────────────────────────────────────── */
+#toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  background: var(--text-1); color: white;
+  padding: 11px 16px; border-radius: var(--radius);
+  font-size: 13.5px; box-shadow: var(--shadow);
+  transform: translateY(60px); opacity: 0;
+  transition: transform 0.2s, opacity 0.2s; pointer-events: none;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">
-    <div class="logo-mark">iC</div>
-    <div>
-      <span class="logo-text">iConnections</span>
-      <span class="logo-sub">Onboarding</span>
+<div id="app">
+  <aside id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+      </div>
+      <div>
+        <div class="sb-name">iConnections</div>
+        <div class="sb-sub">Onboarding</div>
+      </div>
     </div>
-  </div>
-  <div class="header-center">
-    <div class="live-dot"></div>
-    <span class="live-label">Live</span>
-  </div>
-  <div class="header-btns">
-    <button id="btn-reset" class="btn-ghost" onclick="doReset()">Reset</button>
-    <button id="btn-run"   class="btn-ghost" onclick="doRun()">▶ Run All Deals</button>
-    <button id="btn-new"   class="btn-new"   onclick="openPanel()">+ New Deal</button>
-  </div>
-</header>
-
-<div class="kpi-bar">
-  <div class="kpi"><span class="kpi-val" id="kpi-invoiced">$0</span><span class="kpi-lbl">Invoiced</span></div>
-  <div class="kpi-sep"></div>
-  <div class="kpi"><span class="kpi-val" id="kpi-collected">$0</span><span class="kpi-lbl">Collected</span></div>
-  <div class="kpi-sep"></div>
-  <div class="kpi"><span class="kpi-val" id="kpi-enterprise">0</span><span class="kpi-lbl">Enterprise</span></div>
-  <div class="kpi-sep"></div>
-  <div class="kpi"><span class="kpi-val" id="kpi-scale">0</span><span class="kpi-lbl">Scale</span></div>
-  <div class="kpi-sep"></div>
-  <div class="kpi"><span class="kpi-val" id="kpi-avgpay">—</span><span class="kpi-lbl">Avg to Pay</span></div>
-  <div class="kpi-sep"></div>
-  <div class="kpi"><span class="kpi-val" id="kpi-avgboard">—</span><span class="kpi-lbl">Avg Onboard</span></div>
-  <div class="kpi-right">
-    <span class="kpi-needs-followup" id="kpi-followup" style="display:none">0 awaiting follow-up</span>
-    <div class="progress-wrap">
-      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-      <span class="progress-pct" id="progress-pct">0%</span>
+    <div class="sb-section">
+      <div class="sb-label">Main</div>
+      <div class="nav-item" id="nav-home" onclick="navigate('/')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" id="nav-deals" onclick="navigate('/deals')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        All Deals
+      </div>
+      <div class="nav-item" id="nav-new" onclick="navigate('/new')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        New Deal
+      </div>
     </div>
-    <span class="kpi-lbl" id="kpi-done" style="white-space:nowrap">0 / 0 onboarded</span>
-  </div>
-</div>
-
-<div class="filter-row">
-  <span class="filter-label">Type</span>
-  <div class="chip-group">
-    <button class="chip active" onclick="setFilter('type','all')">All</button>
-    <button class="chip" onclick="setFilter('type','Platform Renewal')">Renewal</button>
-    <button class="chip" onclick="setFilter('type','New Client')">New Client</button>
-    <button class="chip" onclick="setFilter('type','Event Only')">Event Only</button>
-  </div>
-  <div class="filter-sep"></div>
-  <span class="filter-label">Tier</span>
-  <div class="chip-group">
-    <button class="chip active" onclick="setFilter('tier','all')">All</button>
-    <button class="chip" onclick="setFilter('tier','Enterprise')">Enterprise</button>
-    <button class="chip" onclick="setFilter('tier','Scale')">Scale</button>
-  </div>
-  <div class="filter-sep"></div>
-  <span class="filter-label">Status</span>
-  <div class="chip-group">
-    <button class="chip active" onclick="setFilter('status','all')">All</button>
-    <button class="chip" onclick="setFilter('status','in_progress')">In Progress</button>
-    <button class="chip" onclick="setFilter('status','followup')">Follow-up</button>
-    <button class="chip" onclick="setFilter('status','complete')">Complete</button>
-  </div>
-  <div class="filter-spacer"></div>
-  <div class="filter-search">
-    <input type="text" id="search-input" placeholder="Search company…" oninput="applySearch()">
-  </div>
-</div>
-
-<div class="kanban-wrap">
-  <div class="kanban-board" id="board"></div>
-</div>
-
-<!-- New Deal slide-over -->
-<div id="overlay" onclick="closePanel()"></div>
-<div id="panel">
-  <div class="panel-header">
-    <h2>New Deal</h2>
-    <button class="panel-close" onclick="closePanel()">&#x2715;</button>
-  </div>
-  <div class="panel-body">
-    <form id="deal-form" onsubmit="submitDeal(event)" novalidate>
-      <div class="form-section">
-        <div class="form-section-title">Deal Information</div>
-        <div class="field">
-          <label>Company Name <span class="req">*</span></label>
-          <input type="text" id="f-company" autocomplete="off">
-          <div class="field-err" id="err-company">Required</div>
-        </div>
-        <div class="form-row">
-          <div class="field">
-            <label>Deal Type <span class="req">*</span></label>
-            <select id="f-dealType" onchange="onDealTypeChange()">
-              <option value="">Select…</option>
-              <option>Platform Renewal</option>
-              <option>New Client</option>
-              <option>Event Only</option>
-            </select>
-            <div class="field-err" id="err-dealType">Required</div>
-          </div>
-          <div class="field">
-            <label>Invoice Amount ($) <span class="req">*</span></label>
-            <input type="number" id="f-invoiceAmount" min="0" oninput="updateCsmPreview()">
-            <div class="field-err" id="err-invoiceAmount">Required (must be > 0)</div>
-          </div>
-        </div>
-        <div class="field">
-          <label>AUM ($) <span class="req">*</span></label>
-          <input type="number" id="f-aum" min="0" oninput="updateCsmPreview()">
-          <div class="field-err" id="err-aum">Required</div>
-        </div>
-        <div id="csm-preview"></div>
-      </div>
-      <div class="form-section">
-        <div class="form-section-title">Primary Contact</div>
-        <div class="form-row">
-          <div class="field">
-            <label>Name <span class="req">*</span></label>
-            <input type="text" id="f-contactName">
-            <div class="field-err" id="err-contactName">Required</div>
-          </div>
-          <div class="field">
-            <label>Email <span class="req">*</span></label>
-            <input type="email" id="f-contactEmail">
-            <div class="field-err" id="err-contactEmail">Valid email required</div>
-          </div>
-        </div>
-        <div class="field">
-          <label>Mobile <span class="req">*</span></label>
-          <input type="text" id="f-contactMobile" oninput="updateCsmPreview()">
-          <div class="field-hint">Include country code (+1 Americas, +44/+353/+41 EMEA, +65 APAC)</div>
-          <div class="field-err" id="err-contactMobile">Required (include country code)</div>
-        </div>
-      </div>
-      <div class="form-section">
-        <div class="form-section-title">Events <span id="events-req" style="font-size:10px;color:var(--purple);display:none">— at least one required</span></div>
-        <div class="event-grid" id="event-grid"></div>
-        <div class="field-err" id="err-events" style="margin-top:7px">Select at least one event for Event Only deals</div>
-      </div>
-      <div class="form-section" id="sub-end-row">
-        <div class="form-section-title">Subscription</div>
-        <div class="field">
-          <label id="sub-end-label">Subscription End Date <span class="req">*</span></label>
-          <input type="date" id="f-subEnd">
-          <div class="field-hint" id="sub-end-hint">Platform Renewals are extended by 12 months automatically.</div>
-          <div class="field-err" id="err-subEnd">Required</div>
-        </div>
-      </div>
-      <div class="form-section">
-        <div class="form-section-title">Sales Rep</div>
-        <div class="form-row">
-          <div class="field">
-            <label>Name <span class="req">*</span></label>
-            <input type="text" id="f-repName">
-            <div class="field-err" id="err-repName">Required</div>
-          </div>
-          <div class="field">
-            <label>Email <span class="req">*</span></label>
-            <input type="email" id="f-repEmail">
-            <div class="field-err" id="err-repEmail">Valid email required</div>
-          </div>
-        </div>
-      </div>
-    </form>
-  </div>
-  <div class="panel-footer">
-    <button type="button" style="background:var(--bg);color:var(--text);border:1px solid var(--border);" onclick="closePanel()">Cancel</button>
-    <button type="submit" form="deal-form" id="btn-submit" class="btn-purple">Create Deal →</button>
-  </div>
-</div>
-
-<!-- Deal Detail drawer -->
-<div id="detail-panel">
-  <div class="detail-header">
-    <button class="detail-back" onclick="closeDetail()">← Back</button>
-    <div class="detail-title">
-      <strong id="d-company"></strong>
-      <span id="d-id"></span>
+    <div class="sb-spacer"></div>
+    <div class="sb-footer">
+      <div class="conn-dot" id="conn-dot"></div>
+      <span id="conn-label" style="font-size:11.5px;color:var(--sidebar-text)">Connecting…</span>
     </div>
-    <span class="detail-badge" id="d-type-badge"></span>
-    <span class="detail-badge manual-present" id="d-manual-badge" style="display:none">⚡ Manual</span>
-  </div>
-  <div class="detail-meta" id="d-meta"></div>
-  <div class="detail-pipeline" id="d-pipeline"></div>
-  <div class="detail-tabs">
-    <button class="tab-btn active" id="tab-btn-thread"   onclick="switchTab('thread')">Thread</button>
-    <button class="tab-btn"        id="tab-btn-overview" onclick="switchTab('overview')">Overview</button>
-    <button class="tab-btn"        id="tab-btn-teams"    onclick="switchTab('teams')">Teams Card</button>
-    <button class="tab-btn"        id="tab-btn-audit"    onclick="switchTab('audit')">Audit Log</button>
-  </div>
-  <div class="detail-body">
-    <div id="tab-thread"></div>
-    <div id="tab-overview" style="display:none"></div>
-    <div id="tab-teams"    style="display:none"></div>
-    <div id="tab-audit"    style="display:none"></div>
+  </aside>
+
+  <div id="main-wrap">
+    <header id="topbar">
+      <div id="breadcrumb"></div>
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="gsearch" type="text" placeholder="Jump to deal, company, or contact…" autocomplete="off">
+        <div id="gsearch-results" class="gsearch-results hidden"></div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" onclick="navigate('/new')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Deal
+        </button>
+      </div>
+    </header>
+    <main id="page"></main>
   </div>
 </div>
+
+<div id="toast"></div>
 
 <script>
-// ── Constants ─────────────────────────────────────────────────────────────────
-const EVENTS_LIST = [
-  'Global Alts Miami 2026','Family Office Summit NYC 2026',
-  'European Allocator Series London 2026','Asia Pacific Forum Singapore 2026',
-  'Emerging Managers Summit 2026','Credit Investors Forum 2026',
-];
-const STAGE_LABELS = { A:'Invoice & Send', B:'Nudge Schedule', C:'Payment', D:'Deal Tagged', E:'CSM Assigned', F:'Copilot Reg.', G:'Closed Won' };
-const STAGE_SHORT  = { A:'Invoice', B:'Nudge', C:'Payment', D:'Tags', E:'CSM', F:'Copilot', G:'Closed' };
-const STAGE_KEYS   = ['A','B','C','D','E','F','G'];
-const COLUMNS      = [
-  { key:'pending',  label:'Pending',          cls:'' },
-  { key:'A',        label:'A · Invoice Sent', cls:'' },
-  { key:'B',        label:'B · Nudge Sched.', cls:'' },
-  { key:'C',        label:'C · Awaiting Pay', cls:'' },
-  { key:'D',        label:'D · Tagged',       cls:'' },
-  { key:'E',        label:'E · CSM Assigned', cls:'' },
-  { key:'F',        label:'F · Copilot',      cls:'' },
-  { key:'G',        label:'G · Closed Won',   cls:'stage-G' },
-  { key:'followup', label:'Follow-up Needed', cls:'stage-followup' },
-  { key:'halted',   label:'Halted',           cls:'stage-halt' },
-];
-const TYPE_LABELS  = { invoice:'Invoice', nudge1:'Nudge 1', nudge2:'Nudge 2', csm_notification:'CSM Notif.', client_welcome:'Welcome' };
-const TYPE_BADGES  = { invoice:'badge-invoice', nudge1:'badge-nudge1', nudge2:'badge-nudge2', csm_notification:'badge-csm', client_welcome:'badge-welcome' };
-const REASON_LABELS = {
-  payment_received:'Payment Received', deal_tagged:'Deal Tagged',
-  csm_assigned:'CSM Assigned', copilot_registered:'Copilot Registered',
-  onboarded_closed_won:'Onboarded & Closed Won', nudge2_overdue:'Invoice Overdue',
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+const S = {
+  deals: [], byId: {}, detail: {},
+  sseOk: false,
+  curTab: {},
+  sort: { col: 'id', dir: 'asc' },
+  filters: { type: 'all', tier: 'all', status: 'all' },
+  search: '',
 };
 
-const deals  = {};
-const states = {};
-const seedDealIds = new Set();
-let filters  = { type: 'all', tier: 'all', status: 'all' };
-let searchQ  = '';
-let dealCols = {};
+/* ═══════════════════════════════════════════════════════════
+   ROUTER
+═══════════════════════════════════════════════════════════ */
+function navigate(path) { window.location.hash = '#' + path; }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function dollars(n) { return '$' + Number(n).toLocaleString('en-US'); }
-function fmtMs(ms) {
-  if (!ms && ms !== 0) return '';
-  if (ms < 1000) return Math.round(ms) + 'ms';
-  if (ms < 60_000) return (ms/1000).toFixed(1) + 's';
-  return (ms/60_000).toFixed(1) + 'min';
+window.addEventListener('hashchange', route);
+window.addEventListener('DOMContentLoaded', () => { init(); route(); });
+
+function route() {
+  const raw = (window.location.hash.slice(1) || '/').replace(/^\//, '');
+  const parts = raw.split('/').filter(Boolean);
+  const pg = parts[0] || '';
+
+  ['home','deals','new'].forEach(id => document.getElementById('nav-'+id)?.classList.remove('active'));
+  if (!pg)                           document.getElementById('nav-home')?.classList.add('active');
+  else if (pg==='deals' && !parts[1]) document.getElementById('nav-deals')?.classList.add('active');
+  else if (pg==='new')               document.getElementById('nav-new')?.classList.add('active');
+
+  if (!pg)                    return renderHome();
+  if (pg==='deals'&&!parts[1]) return renderDeals();
+  if (pg==='deals'&&parts[1]) return renderDetail(decodeURIComponent(parts[1]));
+  if (pg==='new')             return renderNew();
+  renderHome();
 }
+
+function setBc(crumbs) {
+  document.getElementById('breadcrumb').innerHTML = crumbs.map((c,i) =>
+    i < crumbs.length-1
+      ? `<span class="nav-item" style="display:inline;padding:0;cursor:pointer;color:var(--text-3)" onclick="navigate('/${c.path??''}')">${escH(c.label)}</span><span class="sep"> › </span>`
+      : `<span class="crumb-cur">${escH(c.label)}</span>`
+  ).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   API
+═══════════════════════════════════════════════════════════ */
+async function loadDeals() {
+  const d = await fetch('/api/deals').then(r=>r.json()).catch(()=>[]);
+  S.deals = (d||[]).filter(Boolean);
+  S.byId  = Object.fromEntries(S.deals.map(d=>[d.id,d]));
+}
+async function loadDetail(id) {
+  const d = await fetch(`/api/deals/${id}`).then(r=>r.json());
+  S.detail[id] = d; return d;
+}
+async function apiRun()   { return fetch('/api/run',{method:'POST'}).then(r=>r.json()); }
+async function apiReset() { return fetch('/api/reset',{method:'POST'}).then(r=>r.json()); }
+async function apiAction(id,action,data) {
+  return fetch(`/api/deals/${id}/action`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,data})}).then(r=>r.json());
+}
+async function apiNew(body) {
+  return fetch('/api/deals',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SSE
+═══════════════════════════════════════════════════════════ */
+function initSSE() {
+  const es = new EventSource('/api/events');
+  es.addEventListener('update', e => {
+    const {dealId, state:ds} = JSON.parse(e.data);
+    if (S.byId[dealId]) S.byId[dealId].state = ds;
+    else { const d={id:dealId,company:ds.company,state:ds}; S.byId[dealId]=d; S.deals.push(d); }
+    if (S.detail[dealId]) S.detail[dealId].state = ds;
+    onUpdate(dealId);
+  });
+  es.addEventListener('newdeal', e => {
+    const {deal,state:ds} = JSON.parse(e.data);
+    const d={...deal,state:ds}; S.byId[deal.id]=d;
+    if (!S.deals.find(x=>x.id===deal.id)) S.deals.push(d);
+    onUpdate(deal.id);
+  });
+  es.addEventListener('reset',    () => loadDeals().then(route));
+  es.addEventListener('complete', () => loadDeals().then(softRefresh));
+  es.onopen  = () => { S.sseOk=true;  setConn(true);  };
+  es.onerror = () => { S.sseOk=false; setConn(false); };
+}
+function setConn(ok) {
+  const dot=document.getElementById('conn-dot'), lbl=document.getElementById('conn-label');
+  if(!dot) return;
+  dot.className='conn-dot '+(ok?'live':'err');
+  lbl.textContent=ok?'Live':'Reconnecting…';
+}
+function onUpdate(dealId) {
+  const h=(window.location.hash.slice(1)||'/').replace(/^\//,'');
+  const parts=h.split('/').filter(Boolean);
+  if (!parts[0]) patchHome();
+  else if (parts[0]==='deals'&&!parts[1]) patchDealsRow(dealId);
+  else if (parts[0]==='deals'&&parts[1]===dealId) softRefresh();
+  patchKpis();
+}
+function softRefresh() { route(); }
+
+/* ═══════════════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════════════ */
+function escH(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtMoney(n) {
+  if(!n&&n!==0) return '—';
+  if(n>=1e9) return '$'+(n/1e9).toFixed(1)+'B';
+  if(n>=1e6) return '$'+(n/1e6).toFixed(0)+'M';
+  return '$'+n.toLocaleString();
+}
+function fmtK(n)  { if(!n) return '—'; return n>=1000?'$'+(n/1000).toFixed(0)+'k':'$'+n.toLocaleString(); }
+function fmtDur(ms) { if(!ms) return null; return ms<1000?ms+'ms':(ms/1000).toFixed(1)+'s'; }
 function fmtTs(iso) {
-  if (!iso) return '';
-  return new Date(iso).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',hour12:false});
+  if(!iso) return '—';
+  return new Date(iso).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
 }
-function fmtTsShort(iso) {
-  if (!iso) return '';
-  return new Date(iso).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:false});
+function relTime(iso) {
+  if(!iso) return '';
+  const s=Math.floor((Date.now()-new Date(iso))/1000);
+  if(s<60) return s+'s ago'; if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago';
 }
-function manualCount(state) {
-  return (state?.auditLog ?? []).filter(e => e.manual).length;
-}
-
-// ── Column assignment ─────────────────────────────────────────────────────────
-function getColumn(state) {
-  if (state.stages?.D === 'failed') return 'halted';
-  if (state.needsHumanFollowUp && state.stages?.C !== 'complete') return 'followup';
-  for (let i = STAGE_KEYS.length - 1; i >= 0; i--) {
-    const s = STAGE_KEYS[i];
-    if (state.stages?.[s] === 'complete' || state.stages?.[s] === 'running') return s;
-  }
+const SK = ['A','B','C','D','E','F','G'];
+const SNAME = {A:'Invoice & Send',B:'Nudge Schedule',C:'Payment Detection',D:'Deal Tagging',E:'CSM Assignment',F:'Copilot Registration',G:'Close & Notify'};
+function overallStatus(deal) {
+  const st=deal.state; if(!st) return 'pending';
+  if(st.needsHumanFollowUp) return 'followup';
+  if(SK.some(k=>st.stages[k]==='failed')) return 'failed';
+  if(st.stages.G==='complete') return 'complete';
+  if(SK.some(k=>st.stages[k]==='running')) return 'running';
   return 'pending';
 }
-
-// ── Filter test ───────────────────────────────────────────────────────────────
-function passesFilter(dealId) {
-  const deal  = deals[dealId];
-  const state = states[dealId];
-  if (!deal) return true;
-  if (searchQ && !deal.company.toLowerCase().includes(searchQ.toLowerCase())) return false;
-  if (filters.type !== 'all' && deal.dealType !== filters.type) return false;
-  if (filters.tier !== 'all') {
-    const tier = state?.assignedCsm?.tier;
-    if (!tier || tier !== filters.tier) return false;
-  }
-  if (filters.status !== 'all') {
-    const col = getColumn(state || {});
-    if (filters.status === 'complete'    && col !== 'G') return false;
-    if (filters.status === 'followup'    && col !== 'followup') return false;
-    if (filters.status === 'in_progress' && (col === 'G' || col === 'followup' || col === 'halted' || col === 'pending')) return false;
-  }
-  return true;
+const SLBL = {complete:'Completed',running:'In Progress',pending:'Pending',failed:'Failed',followup:'Needs Follow-Up'};
+function pill(s,lbl) { return `<span class="pill pill-${escH(s)}">${escH(lbl??SLBL[s]??s)}</span>`; }
+function tierPill(t) { if(!t) return ''; return `<span class="pill pill-${t.toLowerCase()}">${escH(t)}</span>`; }
+function typePill(t) {
+  if(!t) return ''; const c=t.toLowerCase().replace(/ /g,'-');
+  return `<span class="pill pill-${c}">${escH(t)}</span>`;
+}
+function pips(stages) {
+  return SK.map(k=>{const s=stages?.[k]??'pending'; return `<div class="pip ${s}" title="Stage ${k}: ${SNAME[k]} — ${s}"></div>`;}).join('');
+}
+function hasManual(deal) { return deal.state?.auditLog?.some(e=>e.manual)??false; }
+function manualBadge() { return `<span class="manual-badge">⚡ Manual</span>`; }
+function actionLabel(a) {
+  return {invoice_sent:'Invoice sent',nudge_schedule_created:'Nudge schedule set',payment_received:'Payment received',halt_conflicting_tags:'HALT – conflicting tags',tags_applied:'Tags applied',csm_assigned:'CSM assigned',copilot_registered:'Copilot registered',deal_closed_onboarded:'Deal closed & onboarded',nudge1_sent:'Nudge 1 sent',flagged_needs_followup:'Flagged – needs follow-up',manual_override:'Manual override',force_reassign_csm:'CSM force-reassigned',edit_tags:'Tags edited',resolve_halt:'Halt resolved'}[a] ?? a.replace(/_/g,' ');
+}
+function toast(msg,dur=3000) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
 }
 
-// ── Build board ───────────────────────────────────────────────────────────────
-function buildBoard() {
-  const board = document.getElementById('board');
-  board.innerHTML = '';
-  COLUMNS.forEach(col => {
-    const el = document.createElement('div');
-    el.className = 'kanban-col';
-    el.id = 'col-' + col.key;
-    el.innerHTML = `
-      <div class="col-head ${col.cls}">
-        <span class="col-title">${col.label}</span>
-        <span class="col-count" id="col-count-${col.key}">0</span>
-      </div>
-      <div class="col-body" id="col-cards-${col.key}"></div>`;
-    board.appendChild(el);
-  });
-}
-
-// ── Build a kanban card ───────────────────────────────────────────────────────
-function buildKCard(dealId) {
-  const deal  = deals[dealId];
-  const state = states[dealId];
-  if (!deal) return null;
-  const div = document.createElement('div');
-  div.id = 'kcard-' + dealId;
-  div.className = 'kcard';
-  div.onclick = () => openDetail(dealId);
-  updateKCardContent(div, deal, state);
-  return div;
-}
-
-function updateKCardContent(div, deal, state) {
-  const csm      = state?.assignedCsm;
-  const running  = STAGE_KEYS.find(s => state?.stages?.[s] === 'running');
-  const failed   = state?.stages?.D === 'failed';
-  const followup = state?.needsHumanFollowUp && state?.stages?.C !== 'complete';
-  const mCount   = manualCount(state);
-  const nudges   = state?.nudgesSent ?? [];
-
-  div.className = 'kcard'
-    + (running    ? ' running'    : '')
-    + (failed     ? ' failed'     : '')
-    + (followup   ? ' followup'   : '')
-    + (mCount > 0 ? ' has-manual' : '');
-
-  const stagePips = STAGE_KEYS.map(s => {
-    const st = state?.stages?.[s] || 'pending';
-    return `<div class="stage-pip ${st}" title="Stage ${s}: ${STAGE_LABELS[s]}"></div>`;
-  }).join('');
-
-  div.innerHTML = `
-    <div class="kcard-company">${deal.company}</div>
-    <div class="kcard-row">
-      <span class="kcard-badge">${deal.dealType}</span>
-      <span class="kcard-badge amt">${dollars(deal.invoiceAmount)}</span>
-      ${csm ? `<span class="kcard-badge tier">${csm.tier[0]}</span>` : ''}
-      ${failed ? `<span class="kcard-badge fail">Halted</span>` : ''}
-      ${followup ? `<span class="kcard-badge followup">Follow-up</span>` : ''}
+/* ═══════════════════════════════════════════════════════════
+   HOME
+═══════════════════════════════════════════════════════════ */
+function renderHome() {
+  setBc([{label:'Dashboard'}]);
+  const kpis=computeKpis(), att=getAttention(), feed=buildFeed();
+  document.getElementById('page').innerHTML=`
+  <div class="page-head">
+    <div><h1>Onboarding Dashboard</h1><p>Live pipeline status across all active deals</p></div>
+    <div class="page-head-actions">
+      <button class="btn btn-secondary btn-sm" onclick="doReset()">↺ Reset</button>
+      <button class="btn btn-primary btn-sm" id="run-btn" onclick="doRun()">▶ Run Pipeline</button>
     </div>
-    <div class="kcard-stages">${stagePips}</div>
-    ${csm ? `<div class="kcard-row" style="margin-top:3px"><span style="font-size:10px;color:var(--muted)">${csm.name.split(' ')[0]} ${csm.name.split(' ')[1]?.[0] || ''}. · ${csm.region}</span></div>` : ''}
-    ${running ? `<div class="kcard-running"><div class="pulse-dot"></div>${STAGE_LABELS[running]}…</div>` : ''}
-    ${nudges.includes('nudge2') ? `<div class="kcard-row" style="margin-top:2px"><span class="kcard-badge" style="background:#fee2e2;color:#991b1b">Nudge 2 sent</span></div>` : nudges.includes('nudge1') ? `<div class="kcard-row" style="margin-top:2px"><span class="kcard-badge" style="background:#fef3c7;color:#92400e">Nudge 1 sent</span></div>` : ''}
-    <div class="kcard-footer">
-      ${mCount > 0 ? `<span class="kcard-footer-item manual">⚡ ${mCount} manual</span>` : ''}
-      ${state?.teamsMutationCount ? `<span class="kcard-footer-item">⊡ ${state.teamsMutationCount}</span>` : ''}
-      ${state?.paymentWaitMs ? `<span class="kcard-footer-item">⏱ ${fmtMs(state.paymentWaitMs)}</span>` : ''}
+  </div>
+  <div class="kpi-grid" id="kpi-grid">${renderKpis(kpis)}</div>
+  <div class="home-grid">
+    <div class="card">
+      <div class="card-head"><h2>Recent Activity</h2><span style="font-size:12px;color:var(--text-3)">${feed.length} events</span></div>
+      <div id="activity-feed">${renderFeed(feed)}</div>
     </div>
-  `;
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-head"><h2>Needs Attention</h2></div>
+        <div id="att-list">${renderAtt(att)}</div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Pipeline Summary</h2></div>
+        <div class="card-body" style="padding:14px 16px">${renderPipelineSummary()}</div>
+      </div>
+    </div>
+  </div>`;
 }
 
-// ── Place or move a card ──────────────────────────────────────────────────────
-function placeCard(dealId, animate) {
-  const newCol = getColumn(states[dealId] || {});
-  const oldCol = dealCols[dealId];
-  dealCols[dealId] = newCol;
-  const visible = passesFilter(dealId);
-  let card = document.getElementById('kcard-' + dealId);
-
-  if (!card) {
-    card = buildKCard(dealId);
-    if (!card) return;
-    if (!visible) card.style.display = 'none';
-    const container = document.getElementById('col-cards-' + newCol);
-    if (container) {
-      container.appendChild(card);
-      if (animate && visible) card.classList.add('card-entering');
-    }
-    updateColCounts();
-    return;
-  }
-
-  updateKCardContent(card, deals[dealId], states[dealId]);
-  card.style.display = visible ? '' : 'none';
-
-  if (newCol === oldCol) { updateColCounts(); return; }
-
-  const newContainer = document.getElementById('col-cards-' + newCol);
-  if (!newContainer) return;
-
-  if (animate && visible) {
-    card.classList.add('card-exiting');
-    setTimeout(() => {
-      card.classList.remove('card-exiting');
-      newContainer.prepend(card);
-      card.classList.add('card-entering');
-      setTimeout(() => card.classList.remove('card-entering'), 320);
-      updateColCounts();
-    }, 260);
-  } else {
-    newContainer.prepend(card);
-    updateColCounts();
-  }
-}
-
-function updateColCounts() {
-  COLUMNS.forEach(col => {
-    const container = document.getElementById('col-cards-' + col.key);
-    if (!container) return;
-    const visible = [...container.children].filter(c => c.style.display !== 'none').length;
-    const el = document.getElementById('col-count-' + col.key);
-    if (el) el.textContent = visible;
-  });
-}
-
-// ── KPIs ──────────────────────────────────────────────────────────────────────
-function updateKpis() {
-  let invoiced = 0, collected = 0, enterprise = 0, scale = 0, total = 0, followupCount = 0;
-  const payTimes = [], boardTimes = [];
-
-  for (const [id, state] of Object.entries(states)) {
-    const deal = deals[id];
-    if (!deal) continue;
-    total++;
-    if (state.stages?.A === 'complete' || state.stages?.A === 'running') invoiced += deal.invoiceAmount;
-    if (state.stages?.C === 'complete') collected += deal.invoiceAmount;
-    const csm = state.assignedCsm;
-    if (csm?.tier === 'Enterprise') enterprise++;
-    if (csm?.tier === 'Scale') scale++;
-    if (state.needsHumanFollowUp && state.stages?.C !== 'complete') followupCount++;
-
-    if (state.paymentWaitMs) payTimes.push(state.paymentWaitMs);
-
-    if (state.stages?.G === 'complete' && state.auditLog?.length >= 2) {
-      const first = new Date(state.auditLog[0].timestamp).getTime();
-      const last  = new Date(state.auditLog[state.auditLog.length - 1].timestamp).getTime();
-      if (last > first) boardTimes.push(last - first);
-    }
-  }
-
-  document.getElementById('kpi-invoiced').textContent  = dollars(invoiced);
-  document.getElementById('kpi-collected').textContent = dollars(collected);
-  document.getElementById('kpi-enterprise').textContent = enterprise;
-  document.getElementById('kpi-scale').textContent = scale;
-
-  if (payTimes.length) {
-    const avg = payTimes.reduce((a,b)=>a+b,0) / payTimes.length;
-    document.getElementById('kpi-avgpay').textContent = fmtMs(avg);
-  }
-  if (boardTimes.length) {
-    const avg = boardTimes.reduce((a,b)=>a+b,0) / boardTimes.length;
-    document.getElementById('kpi-avgboard').textContent = fmtMs(avg);
-  }
-
-  const done = Object.values(states).filter(s => s.stages?.G === 'complete').length;
-  const pct  = total ? Math.round(done / total * 100) : 0;
-  document.getElementById('kpi-done').textContent = `${done} / ${total} onboarded`;
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('progress-pct').textContent  = pct + '%';
-
-  const fuEl = document.getElementById('kpi-followup');
-  if (followupCount > 0) {
-    fuEl.style.display = '';
-    fuEl.textContent = `${followupCount} awaiting follow-up`;
-  } else {
-    fuEl.style.display = 'none';
-  }
-}
-
-// ── Filters ───────────────────────────────────────────────────────────────────
-function setFilter(key, val) {
-  filters[key] = val;
-  document.querySelectorAll('.chip').forEach(c => {
-    if (c.getAttribute('onclick')?.includes(`'${key}'`)) {
-      c.classList.toggle('active', c.getAttribute('onclick')?.includes(`'${val}'`));
-    }
-  });
-  reapplyFilters();
-}
-function applySearch() {
-  searchQ = document.getElementById('search-input').value;
-  reapplyFilters();
-}
-function reapplyFilters() {
-  for (const dealId of Object.keys(deals)) {
-    const card = document.getElementById('kcard-' + dealId);
-    if (card) card.style.display = passesFilter(dealId) ? '' : 'none';
-  }
-  updateColCounts();
-}
-
-// ── Detail view ───────────────────────────────────────────────────────────────
-let activeDetailId  = null;
-let activeTab       = 'thread';
-let detailEmails    = null;
-let detailMutations = null;
-let detailReplies   = null;
-let _emailHtmls     = [];
-
-function openDetail(dealId) {
-  activeDetailId  = dealId;
-  activeTab       = 'thread';
-  detailEmails    = null;
-  detailMutations = null;
-  detailReplies   = null;
-  renderDetailShell();
-  document.getElementById('detail-panel').classList.add('open');
-  refreshDetailArtifacts(dealId);
-}
-
-function closeDetail() {
-  document.getElementById('detail-panel').classList.remove('open');
-  activeDetailId = null;
-}
-
-function refreshDetailArtifacts(dealId) {
-  fetch('/api/deals/' + dealId)
-    .then(r => r.json())
-    .then(d => {
-      if (activeDetailId !== dealId) return;
-      detailEmails    = d.emails    || [];
-      detailMutations = d.teamsMutations || [];
-      detailReplies   = d.replies   || [];
-      renderDetailShell();
-    })
-    .catch(() => {});
-}
-
-function switchTab(name) {
-  activeTab = name;
-  ['thread','overview','teams','audit'].forEach(t => {
-    document.getElementById('tab-' + t).style.display        = t === name ? 'block' : 'none';
-    document.getElementById('tab-btn-' + t).classList.toggle('active', t === name);
-  });
-}
-
-function renderDetailShell() {
-  const dealId = activeDetailId;
-  if (!dealId) return;
-  const deal  = deals[dealId];
-  const state = states[dealId];
-  if (!deal || !state) return;
-
-  document.getElementById('d-company').textContent    = deal.company;
-  document.getElementById('d-id').textContent         = ' · ' + deal.id;
-  document.getElementById('d-type-badge').textContent = deal.dealType;
-
-  const mCount = manualCount(state);
-  const manBadge = document.getElementById('d-manual-badge');
-  manBadge.style.display = mCount > 0 ? '' : 'none';
-  if (mCount > 0) manBadge.textContent = `⚡ ${mCount} manual action${mCount > 1 ? 's' : ''}`;
-
-  const csm = state.assignedCsm;
-  const metaItems = [
-    `<span class="meta-item"><strong>${dollars(deal.invoiceAmount)}</strong> invoice</span>`,
-    `<span class="meta-item">AUM <strong>${dollars(deal.aumDollars)}</strong></span>`,
-    `<span class="meta-item"><strong>${deal.primaryContact.name}</strong> · ${deal.primaryContact.email}</span>`,
-    `<span class="meta-item">Rep: <strong>${deal.salesRepName}</strong></span>`,
-    csm ? `<span class="meta-item">CSM: <strong>${csm.name}</strong> · ${csm.tier} · ${csm.region}</span>` : '',
-    state.invoiceId ? `<span class="meta-item">Invoice: <strong>${state.invoiceId}</strong></span>` : '',
-    state.copilotCompanyId ? `<span class="meta-item">Copilot Co: <strong>${state.copilotCompanyId}</strong></span>` : '',
-    state.stages.C === 'complete' && state.paymentAmount
-      ? `<span class="meta-item payment-badge">✓ $${state.paymentAmount.toLocaleString()} paid${state.paymentWaitMs ? ' · ' + fmtMs(state.paymentWaitMs) : ''}</span>`
-      : '',
-    state.needsHumanFollowUp && state.stages.C !== 'complete'
-      ? `<span class="meta-item followup-badge">⚠ Awaiting follow-up</span>`
-      : '',
-    state.invoiceStatus === 'overdue'
-      ? `<span class="meta-item overdue-badge">Overdue</span>`
-      : '',
-  ].filter(Boolean).join('');
-  document.getElementById('d-meta').innerHTML = metaItems;
-
-  const durs = state.stageDurations ?? {};
-  document.getElementById('d-pipeline').innerHTML = STAGE_KEYS.map((s, i) => {
-    const status  = state.stages[s] || 'pending';
-    const prevDone = i > 0 && state.stages[STAGE_KEYS[i-1]] === 'complete';
-    const dur = durs[s];
-    return `<div class="pipeline-step${prevDone ? ' done-step' : ''}">
-      <div class="pipeline-dot ${status}">${status==='complete'?'✓':status==='failed'?'✗':s}</div>
-      <div class="pipeline-lbl${status==='complete'?' done':status==='running'?' active':''}">${STAGE_SHORT[s]}</div>
-      <div class="pipeline-dur${dur ? ' has-dur' : ''}">${dur ? fmtMs(dur) : ''}</div>
-    </div>`;
-  }).join('');
-
-  renderThreadTab(deal, state, detailEmails, detailReplies);
-  renderOverviewTab(deal, state);
-  renderTeamsTab(detailMutations);
-  renderAuditTab(state.auditLog, dealId);
-
-  const emailCount = detailEmails ? detailEmails.length : 0;
-  const replyCount = detailReplies ? detailReplies.length : 0;
-  document.getElementById('tab-btn-thread').innerHTML =
-    'Thread' + (emailCount + replyCount > 0 ? ` <span class="tab-count">${emailCount + replyCount}</span>` : '');
-  document.getElementById('tab-btn-teams').innerHTML =
-    'Teams Card' + (detailMutations?.length ? ` <span class="tab-count">${detailMutations.length}</span>` : '');
-  const auditManual = (state.auditLog || []).filter(e => e.manual).length;
-  document.getElementById('tab-btn-audit').innerHTML =
-    'Audit Log' + (state.auditLog?.length ? ` <span class="tab-count">${state.auditLog.length}</span>` : '')
-    + (auditManual > 0 ? ` <span class="tab-count" style="background:var(--manual-light);color:var(--manual)">⚡${auditManual}</span>` : '');
-
-  switchTab(activeTab);
-}
-
-// ── Thread tab ────────────────────────────────────────────────────────────────
-function renderThreadTab(deal, state, emails, replies) {
-  const items = [];
-  if (emails) emails.forEach((e, i) => items.push({ kind:'out', idx:i, ts:e.timestamp, data:e }));
-  if (replies) replies.forEach(r => items.push({ kind:'in', ts:r.timestamp, data:r }));
-  items.sort((a, b) => a.ts.localeCompare(b.ts));
-
-  if (items.length === 0) {
-    document.getElementById('tab-thread').innerHTML =
-      '<div class="empty-state"><strong>No messages yet</strong>Emails and client replies appear here as the deal progresses.</div>';
-    return;
-  }
-
-  _emailHtmls = emails ? emails.map(e => e.bodyHtml) : [];
-
-  const html = items.map((item, i) => {
-    const ts = fmtTsShort(item.ts);
-    if (item.kind === 'out') {
-      const e = item.data;
-      const addr = `To: ${e.to}${e.cc ? ' · CC: ' + e.cc : ''}`;
-      return `<div class="thread-item outbound" id="ti-${i}">
-        <div class="thread-head" onclick="toggleThread(${i}, ${item.idx}, true)">
-          <div class="thread-avatar avatar-out">iC</div>
-          <div class="thread-meta">
-            <div class="thread-from">iConnections <span class="thread-type-badge ${TYPE_BADGES[e.type]||'badge-invoice'}">${TYPE_LABELS[e.type]||e.type}</span></div>
-            <div class="thread-subject">${e.subject}</div>
-            <div class="thread-addr">${addr}</div>
-          </div>
-          <span class="thread-time">${ts}</span>
-          <span class="thread-chevron">▼</span>
-        </div>
-        <div class="thread-body" id="tbody-${i}"></div>
-      </div>`;
-    } else {
-      const r = item.data;
-      const initials = r.fromName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-      return `<div class="thread-item inbound" id="ti-${i}">
-        <div class="thread-head" onclick="toggleThread(${i}, null, false)">
-          <div class="thread-avatar avatar-in">${initials}</div>
-          <div class="thread-meta">
-            <div class="thread-from">${r.fromName} <span class="thread-type-badge badge-reply">Reply</span></div>
-            <div class="thread-subject">${r.subject}</div>
-            <div class="thread-addr">To: ${r.toEmail}</div>
-          </div>
-          <span class="thread-time">${ts}</span>
-          <span class="thread-chevron">▼</span>
-        </div>
-        <div class="thread-body" id="tbody-${i}"></div>
-      </div>`;
-    }
-  }).join('');
-
-  document.getElementById('tab-thread').innerHTML = `<div class="thread-list">${html}</div>`;
-}
-
-function toggleThread(i, emailIdx, isOutbound) {
-  const item  = document.getElementById('ti-' + i);
-  const tbody = document.getElementById('tbody-' + i);
-  item.classList.toggle('expanded');
-  if (item.classList.contains('expanded') && !tbody.innerHTML) {
-    if (isOutbound && emailIdx !== null && _emailHtmls[emailIdx]) {
-      const iframe = document.createElement('iframe');
-      iframe.scrolling = 'no';
-      iframe.style.cssText = 'width:100%;border:none;min-height:150px;display:block';
-      iframe.srcdoc = _emailHtmls[emailIdx];
-      iframe.onload = () => {
-        try {
-          const doc = iframe.contentDocument || iframe.contentWindow.document;
-          iframe.style.height = Math.max(doc.documentElement.scrollHeight, 150) + 'px';
-        } catch(e) {}
-      };
-      tbody.appendChild(iframe);
-    } else {
-      const threadItems = [];
-      if (detailEmails) detailEmails.forEach((e,idx) => threadItems.push({kind:'out',idx,ts:e.timestamp}));
-      if (detailReplies) detailReplies.forEach(r => threadItems.push({kind:'in',ts:r.timestamp,data:r}));
-      threadItems.sort((a,b) => a.ts.localeCompare(b.ts));
-      const thisItem = threadItems[i];
-      if (thisItem?.kind === 'in') {
-        const div = document.createElement('div');
-        div.className = 'reply-text';
-        div.textContent = thisItem.data.body;
-        tbody.appendChild(div);
-      }
-    }
-  }
-}
-
-// ── Overview tab ──────────────────────────────────────────────────────────────
-function renderOverviewTab(deal, state) {
-  const csm    = state.assignedCsm;
-  const subEnd = state.computedSubEndDate || deal.subscriptionEndDate || 'N/A';
-  const durs   = state.stageDurations ?? {};
-
-  const stageDetails = {
-    A: state.invoiceId ? `Invoice ${state.invoiceId}${state.dueDate ? ' · Due ' + state.dueDate : ''}` : '',
-    B: state.nudge1Date ? `Nudge 1: ${state.nudge1Date} · Nudge 2: ${state.nudge2Date}${state.nudgesSent?.length ? ' · Sent: ' + state.nudgesSent.join(', ') : ''}` : '',
-    C: state.invoicePaidAt ? `${dollars(state.paymentAmount)} received · Wait: ${fmtMs(state.paymentWaitMs)}` : (state.needsHumanFollowUp ? `Not received · Wait: ${fmtMs(state.paymentWaitMs)}` : ''),
-    D: state.tagsApplied ? `${state.tagsApplied.join(', ')}${state.tagsNewlyApplied?.length ? ' · New: ' + state.tagsNewlyApplied.join(', ') : ''}` : '',
-    E: csm ? `${csm.name} · ${csm.tier} · ${csm.region}` : '',
-    F: state.copilotCompanyId ? `Co. ${state.copilotCompanyId} · Client: ${state.copilotClientIds?.[0] || '—'} · Sub end: ${subEnd}` : '',
-    G: state.stages.G === 'complete' ? 'Closed Won ✓' : '',
+function computeKpis() {
+  const ds=S.deals;
+  return {
+    total:ds.length,
+    complete:ds.filter(d=>d.state?.stages?.G==='complete').length,
+    running:ds.filter(d=>SK.some(k=>d.state?.stages?.[k]==='running')).length,
+    followup:ds.filter(d=>d.state?.needsHumanFollowUp).length,
+    revenue:ds.reduce((s,d)=>s+(d.state?.paymentAmount??0),0),
+    manual:ds.filter(d=>hasManual(d)).length,
   };
-
-  const stagesHtml = Object.entries(STAGE_LABELS).map(([s, lbl]) => {
-    const st  = state.stages[s] || 'pending';
-    const det = stageDetails[s];
-    const dur = durs[s];
-    return `<div class="ov-stage-row ${st}">
-      <div class="ov-dot ${st}">${st==='complete'?'✓':st==='failed'?'✗':''}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:700">${s}: ${lbl}</div>
-        ${det?`<div style="font-size:10.5px;color:var(--muted);margin-top:1px">${det}</div>`:''}
-        ${state.haltReason&&s==='D'?`<div style="font-size:10.5px;color:var(--danger);margin-top:1px">⚑ ${state.haltReason}</div>`:''}
-      </div>
-      ${dur ? `<span class="stage-dur-badge">${fmtMs(dur)}</span>` : ''}
-    </div>`;
-  }).join('');
-
-  const cards = [
-    `<div class="ov-card"><div class="ov-card-title">Deal Info</div><div class="ov-card-body">
-      <div><strong>${deal.company}</strong></div>
-      <div>Type: ${deal.dealType}</div>
-      <div>Invoice: ${dollars(deal.invoiceAmount)}</div>
-      <div>AUM: ${dollars(deal.aumDollars)}</div>
-      ${deal.dealType !== 'Event Only' ? `<div>Sub end: ${subEnd}</div>` : ''}
-      ${deal.paymentBehavior ? `<div>Pay scenario: <strong>${deal.paymentBehavior.replace('_',' ')}</strong></div>` : ''}
-    </div></div>`,
-    `<div class="ov-card"><div class="ov-card-title">Primary Contact</div><div class="ov-card-body">
-      <div><strong>${deal.primaryContact.name}</strong></div>
-      <div>${deal.primaryContact.email}</div>
-      <div>${deal.primaryContact.mobile}</div>
-    </div></div>`,
-    csm ? `<div class="ov-card reasoning"><div class="ov-card-title">CSM Assignment</div><div class="ov-card-body">
-      <div><strong>${csm.name}</strong></div>
-      <div>${csm.tier} · ${csm.region}</div>
-      <div>${csm.email}</div>
-      ${state.csmReasoning ? `<div style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.5">${state.csmReasoning}</div>` : ''}
-    </div></div>` : '',
-    state.tagsApplied ? `<div class="ov-card tags-diff"><div class="ov-card-title">HubSpot Tags</div><div class="ov-card-body">
-      ${state.tagsNewlyApplied?.length ? `<div style="font-size:10px;color:var(--muted);margin-bottom:3px">Newly applied: <strong style="color:var(--success)">${state.tagsNewlyApplied.join(', ')}</strong></div>` : ''}
-      ${state.tagsExisting?.length ? `<div style="font-size:10px;color:var(--muted);margin-bottom:3px">Pre-existing: ${state.tagsExisting.join(', ')}</div>` : ''}
-      <div>${state.tagsApplied.map(t => `<span style="display:inline-block;margin:1px 2px 1px 0;font-size:9.5px;font-weight:700;padding:1.5px 6px;border-radius:99px;background:var(--purple-light);color:var(--purple)">${t}</span>`).join('')}</div>
-    </div></div>` : '',
-    state.copilotCompanyId ? `<div class="ov-card"><div class="ov-card-title">Copilot v3</div><div class="ov-card-body">
-      <div>Company: <strong>${state.copilotCompanyId}</strong></div>
-      ${state.copilotClientIds ? `<div>Client: <strong>${state.copilotClientIds[0]}</strong></div>` : ''}
-      <div>Events: ${deal.events.join(', ') || '—'}</div>
-      ${subEnd !== 'N/A' ? `<div>Sub end: <strong>${subEnd}</strong></div>` : ''}
-    </div></div>` : '',
-    `<div class="ov-card"><div class="ov-card-title">Sales Rep</div><div class="ov-card-body">
-      <div><strong>${deal.salesRepName}</strong></div>
-      <div>${deal.salesRepEmail}</div>
-    </div></div>`,
-  ].filter(Boolean).join('');
-
-  const mCount = manualCount(state);
-  const manSection = mCount > 0 ? `
-    <div class="ov-card manual-actions" style="grid-column:1/-1">
-      <div class="ov-card-title" style="color:var(--manual)">⚡ Manual Actions (${mCount})</div>
-      <div class="ov-card-body">
-        ${state.auditLog.filter(e => e.manual).map(e =>
-          `<div style="padding:4px 0;border-bottom:1px solid #fed7aa;font-size:11px"><strong>${e.action}</strong> · <span style="color:var(--muted)">${fmtTsShort(e.timestamp)}</span>${e.data?.note ? ` · ${e.data.note}` : ''}</div>`
-        ).join('')}
-      </div>
-    </div>` : '';
-
-  document.getElementById('tab-overview').innerHTML = `
-    <div class="overview-grid">${cards}${manSection}</div>
-    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--purple);margin-bottom:8px">Stage Progress & Durations</div>
-    <div class="ov-stage-list">${stagesHtml}</div>`;
 }
+function renderKpis(t) {
+  return [
+    {lbl:'Total Deals',    val:t.total,    sub:'in pipeline',         col:'var(--brand)'},
+    {lbl:'Completed',      val:t.complete, sub:'fully onboarded',     col:'var(--green)'},
+    {lbl:'In Progress',    val:t.running,  sub:'active stages',       col:'var(--blue)'},
+    {lbl:'Needs Follow-Up',val:t.followup, sub:'human action needed', col:'var(--amber)'},
+    {lbl:'Revenue',        val:fmtMoney(t.revenue), sub:'collected', col:'var(--brand)', raw:true},
+    {lbl:'Manual Actions', val:t.manual,   sub:'deals with overrides',col:'var(--orange)'},
+  ].map(k=>`<div class="kpi-card"><div class="kpi-label">${k.lbl}</div><div class="kpi-value" style="color:${k.col}">${k.raw?k.val:k.val}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
+}
+function patchKpis() { const el=document.getElementById('kpi-grid'); if(el) el.innerHTML=renderKpis(computeKpis()); }
 
-// ── Teams tab ─────────────────────────────────────────────────────────────────
-function renderTeamsTab(mutations) {
-  if (!mutations || mutations.length === 0) {
-    document.getElementById('tab-teams').innerHTML =
-      '<div class="empty-state"><strong>No Teams card yet</strong>Created when Stage A completes.</div>';
-    return;
-  }
-  const chk = (checked, label, detail) =>
-    `<li class="${checked?'checked':'unchecked'}">${checked?'☑':'☐'} ${label}${detail?' — <em>'+detail+'</em>':''}</li>`;
-  const html = mutations.map((m, i) => {
-    const ts    = fmtTsShort(m.timestamp);
-    const label = m.type==='create'?'Card Created':(REASON_LABELS[m.patchReason]||m.patchReason||'Patched');
-    const c     = m.cardState;
-    return `<div class="teams-mutation" id="teams-m-${i}">
-      <div class="teams-mutation-head" onclick="toggleTeams(${i})">
-        <span class="mutation-type-badge ${m.type==='create'?'badge-create':'badge-patch'}">${m.type==='create'?'Create':'Patch'}</span>
-        <span class="mutation-reason">${label}</span>
-        <span class="mutation-time">${ts}</span>
-        <span class="thread-chevron">▼</span>
-      </div>
-      <div class="teams-card-preview">
-        <div style="font-size:10px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">
-          ${c.headerCompany} · ${c.headerDealId} · ${c.headerStage}${c.headerBadge?' · ⚑ '+c.headerBadge:''}
-        </div>
-        <ul class="teams-checklist">
-          ${chk(c.invoiceSentChecked,'Invoice sent',c.invoiceSentTimestamp?c.invoiceSentTimestamp.slice(0,10):null)}
-          ${chk(c.paymentReceivedChecked,'Payment received',c.paymentAmount?dollars(c.paymentAmount):null)}
-          ${chk(c.dealTaggedChecked,'Deal tagged',c.dealTaggedTags?c.dealTaggedTags.join(', '):null)}
-          ${chk(c.csmAssignedChecked,'CSM assigned',c.csmAssignedName||null)}
-          ${chk(c.copilotRegisteredChecked,'Copilot registered',c.copilotRegisteredClients?c.copilotRegisteredClients+' client(s)':null)}
-          ${chk(c.onboardedChecked,'Onboarded',null)}
-        </ul>
-        ${c.mentions?.length ? `<div style="font-size:10.5px;color:var(--purple)">@mentions: ${c.mentions.join(', ')}</div>` : ''}
-        <div style="font-size:10.5px;color:var(--muted);margin-top:5px">
-          CSM: ${c.footerCsm||'—'} · Invoice: ${c.footerInvoiceAmount?dollars(c.footerInvoiceAmount):'—'} · Sub end: ${c.footerSubEnd||'N/A'}
-          ${c.footerEvents?.length ? ' · Events: ' + c.footerEvents.join('; ') : ''}
+function buildFeed() {
+  const evs=[];
+  for(const d of S.deals) for(const e of (d.state?.auditLog??[])) evs.push({...e,dealId:d.id,company:d.company});
+  return evs.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp)).slice(0,40);
+}
+function renderFeed(feed) {
+  if(!feed.length) return '<div class="card-empty">No activity yet — run the pipeline to get started.</div>';
+  return feed.map(e=>{
+    const dc=e.manual?'manual':e.action?.includes('closed')?'complete':e.action?.includes('halt')||e.action?.includes('failed')?'failed':e.action?.includes('followup')?'followup':'';
+    return `<div class="activity-item">
+      <div class="activity-dot ${dc}"></div>
+      <div class="activity-body">
+        <div class="activity-line">
+          <strong onclick="navigate('/deals/${escH(e.dealId)}')" style="cursor:pointer" onmouseover="this.style.color='var(--brand)'" onmouseout="this.style.color=''">${escH(e.company)}</strong>
+          — ${escH(actionLabel(e.action))}
+          ${e.manual?manualBadge():''}
+          <span style="font-size:11px;color:var(--text-3);margin-left:4px">Stage ${escH(e.stage)}</span>
         </div>
       </div>
+      <div class="activity-time">${relTime(e.timestamp)}</div>
     </div>`;
   }).join('');
-  document.getElementById('tab-teams').innerHTML = `<div class="teams-list">${html}</div>`;
 }
-function toggleTeams(i) { document.getElementById('teams-m-'+i).classList.toggle('expanded'); }
-
-// ── Audit tab ─────────────────────────────────────────────────────────────────
-function renderAuditTab(auditLog, dealId) {
-  const manualSection = `
-    <div class="action-section" style="margin-bottom:16px">
-      <div class="action-section-title">Log Manual Action</div>
-      <div class="action-form">
-        <select id="action-type-${dealId}">
-          <option value="force_csm_override">Force CSM Override</option>
-          <option value="resolve_halt">Resolve Halt</option>
-          <option value="edit_tag">Edit Tag</option>
-          <option value="manual_payment_confirm">Manual Payment Confirm</option>
-          <option value="escalate">Escalate to Manager</option>
-          <option value="other">Other</option>
-        </select>
-        <input type="text" id="action-note-${dealId}" placeholder="Optional note…">
-        <button class="btn-manual" onclick="logManualAction('${dealId}')">⚡ Log Action</button>
-      </div>
+function getAttention() {
+  return S.deals.filter(d=>{const st=d.state; return st&&(st.needsHumanFollowUp||SK.some(k=>st.stages[k]==='failed')||hasManual(d));});
+}
+function renderAtt(deals) {
+  if(!deals.length) return '<div class="card-empty">No deals need attention.</div>';
+  return deals.map(d=>{
+    const s=d.state;
+    const type=s?.needsHumanFollowUp?'followup':SK.some(k=>s?.stages?.[k]==='failed')?'failed':'manual';
+    const sub=s?.haltReason??(s?.needsHumanFollowUp?'Payment overdue — needs contact':'Manual override logged');
+    const ic=type==='followup'?'⚠':type==='failed'?'✕':'⚡';
+    return `<div class="attention-item" onclick="navigate('/deals/${escH(d.id)}')">
+      <div class="att-icon ${type}">${ic}</div>
+      <div class="att-body"><div class="att-name">${escH(d.company)}</div><div class="att-sub">${escH(sub)}</div></div>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
     </div>`;
-
-  if (!auditLog || auditLog.length === 0) {
-    document.getElementById('tab-audit').innerHTML = manualSection +
-      '<div class="empty-state"><strong>No audit entries yet</strong></div>';
-    return;
-  }
-
-  const rows = [...auditLog].reverse().map((e, i) => {
-    const isManual = !!e.manual;
-    const dataStr = e.data ? JSON.stringify(e.data) : '';
-    const dataId  = `adata-${dealId}-${i}`;
-    return `<tr class="${isManual ? 'manual-row' : ''}">
-      <td class="audit-ts" style="white-space:nowrap;font-size:10.5px">${fmtTs(e.timestamp)}</td>
-      <td><span class="audit-stage-dot ${isManual ? 'manual' : ''}">${e.stage === 'manual' ? 'M' : e.stage}</span></td>
-      <td><span class="audit-action">${e.action.replace(/_/g,' ')}</span></td>
-      <td><span class="audit-type-badge ${isManual ? 'audit-manual' : 'audit-auto'}">${isManual ? '⚡ manual' : 'auto'}</span></td>
-      <td>${dataStr ? `<div class="audit-data" id="${dataId}" onclick="this.classList.toggle('expanded')">${dataStr}</div>` : ''}</td>
-    </tr>`;
   }).join('');
-
-  document.getElementById('tab-audit').innerHTML = manualSection + `
-    <table class="audit-table">
-      <thead><tr><th>Timestamp</th><th>Stg</th><th>Action</th><th>Type</th><th>Data</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
 }
-
-async function logManualAction(dealId) {
-  const actionEl = document.getElementById('action-type-' + dealId);
-  const noteEl   = document.getElementById('action-note-' + dealId);
-  const action   = actionEl?.value;
-  const note     = noteEl?.value?.trim();
-  if (!action) return;
-  await fetch('/api/deals/' + dealId + '/action', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action, data: { stage: 'manual', note: note || undefined, operator: 'dashboard' } }),
-  });
-  if (noteEl) noteEl.value = '';
-  refreshDetailArtifacts(dealId);
+function renderPipelineSummary() {
+  const by={}; for(const d of S.deals){const s=overallStatus(d);by[s]=(by[s]||0)+1;}
+  const total=S.deals.length||1;
+  return [{k:'complete',l:'Completed'},{k:'running',l:'In Progress'},{k:'followup',l:'Needs Follow-Up'},{k:'failed',l:'Failed'},{k:'pending',l:'Pending'}].map(r=>{
+    const n=by[r.k]??0,pct=Math.round((n/total)*100);
+    const col=r.k==='complete'?'var(--green)':r.k==='running'?'var(--blue)':r.k==='failed'?'var(--red)':r.k==='followup'?'var(--amber)':'var(--border-2)';
+    return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px"><span>${r.l}</span><span style="font-weight:600">${n}</span></div><div style="height:5px;border-radius:3px;background:var(--border);overflow:hidden"><div style="height:100%;width:${pct}%;border-radius:3px;background:${col};transition:width 0.4s"></div></div></div>`;
+  }).join('');
 }
-
-// ── New Deal form ─────────────────────────────────────────────────────────────
-function detectTier(aum, amount) { return (amount > 25000 || aum > 1_000_000_000) ? 'Enterprise' : 'Scale'; }
-function detectRegion(mobile) {
-  const n = mobile.replace(/[\s\-().]/g,'');
-  if (n.startsWith('+1')) return 'Americas';
-  if (['+44','+33','+49','+41','+32','+34','+39','+46','+47','+45','+353','+358','+351','+30'].some(p=>n.startsWith(p))) return 'EMEA';
-  if (['+65','+81','+82','+61','+64','+852','+86'].some(p=>n.startsWith(p))) return 'APAC';
-  return 'Global';
+function patchHome() {
+  const f=document.getElementById('activity-feed'); if(f) f.innerHTML=renderFeed(buildFeed());
+  patchKpis();
+  const a=document.getElementById('att-list'); if(a) a.innerHTML=renderAtt(getAttention());
 }
-const CSM_MAP = {
-  'Enterprise:Americas':'Marcus Whitfield','Enterprise:EMEA':'Priya Anand','Enterprise:APAC':'James Calloway',
-  'Scale:Americas':'Tessa Nguyen','Scale:EMEA':"Ryan O'Brien",'Scale:Global':'Hannah Petrov',
-};
-function updateCsmPreview() {
-  const aum=Number(document.getElementById('f-aum').value)||0;
-  const amt=Number(document.getElementById('f-invoiceAmount').value)||0;
-  const mobile=document.getElementById('f-contactMobile').value.trim();
-  const preview=document.getElementById('csm-preview');
-  if (!aum && !amt && !mobile){preview.style.display='none';return;}
-  const tier=detectTier(aum,amt), region=mobile?detectRegion(mobile):'—';
-  const csm=CSM_MAP[`${tier}:${region}`]||'No CSM for this region';
-  preview.style.display='block';
-  preview.innerHTML=`<strong>CSM preview:</strong> ${tier} · ${region} → <strong>${csm}</strong>`;
-}
-function buildEventGrid() {
-  const grid=document.getElementById('event-grid');
-  EVENTS_LIST.forEach(ev=>{
-    const label=document.createElement('label');
-    label.className='event-item';
-    label.innerHTML=`<input type="checkbox" name="event" value="${ev}"> <span>${ev}</span>`;
-    grid.appendChild(label);
-  });
-}
-function onDealTypeChange() {
-  const type=document.getElementById('f-dealType').value;
-  const subRow=document.getElementById('sub-end-row');
-  const evReq=document.getElementById('events-req');
-  const hint=document.getElementById('sub-end-hint');
-  const subLabel=document.getElementById('sub-end-label');
-  if (type==='Event Only'){subRow.classList.add('hidden');evReq.style.display='inline';}
-  else {
-    subRow.classList.remove('hidden');evReq.style.display='none';
-    if (type==='Platform Renewal'){hint.style.display='block';subLabel.innerHTML='Current Subscription End Date <span class="req">*</span>';}
-    else{hint.style.display='none';subLabel.innerHTML='Subscription End Date <span class="req">*</span>';}
-  }
-  updateCsmPreview();
-}
-function showErr(id,msg){const el=document.getElementById('err-'+id);if(el){el.textContent=msg||el.textContent;el.classList.add('show');}const inp=document.getElementById('f-'+id);if(inp)inp.classList.add('err');}
-function clearErr(id){const el=document.getElementById('err-'+id);if(el)el.classList.remove('show');const inp=document.getElementById('f-'+id);if(inp)inp.classList.remove('err');}
-function validate() {
-  let ok=true;
-  const v=id=>document.getElementById(id)?.value.trim();
-  ['company','dealType','invoiceAmount','aum','contactName','contactEmail','contactMobile','repName','repEmail'].forEach(clearErr);
-  document.getElementById('err-events').classList.remove('show');
-  if (!v('f-company')){showErr('company');ok=false;}
-  if (!v('f-dealType')){showErr('dealType');ok=false;}
-  const amt=Number(v('f-invoiceAmount'));if(!amt||amt<=0){showErr('invoiceAmount');ok=false;}
-  const aum=Number(v('f-aum'));if(isNaN(aum)||aum<0){showErr('aum');ok=false;}
-  if(!v('f-contactName')){showErr('contactName');ok=false;}
-  if(!v('f-contactEmail')||!v('f-contactEmail').includes('@')){showErr('contactEmail');ok=false;}
-  if(!v('f-contactMobile')){showErr('contactMobile');ok=false;}
-  if(!v('f-repName')){showErr('repName');ok=false;}
-  if(!v('f-repEmail')||!v('f-repEmail').includes('@')){showErr('repEmail');ok=false;}
-  const type=v('f-dealType');
-  const checked=[...document.querySelectorAll('input[name="event"]:checked')].map(e=>e.value);
-  if(type==='Event Only'&&checked.length===0){document.getElementById('err-events').classList.add('show');ok=false;}
-  if((type==='Platform Renewal'||type==='New Client')&&!v('f-subEnd')){showErr('subEnd');ok=false;}
-  return ok;
-}
-async function submitDeal(e) {
-  e.preventDefault();
-  if (!validate()) return;
-  const v=id=>document.getElementById(id)?.value.trim();
-  const checked=[...document.querySelectorAll('input[name="event"]:checked')].map(el=>el.value);
-  const type=v('f-dealType');
-  const payload={
-    company:v('f-company'),dealType:type,
-    invoiceAmount:Number(v('f-invoiceAmount')),aumDollars:Number(v('f-aum')),
-    primaryContact:{name:v('f-contactName'),email:v('f-contactEmail'),mobile:v('f-contactMobile')},
-    events:checked,subscriptionEndDate:(type!=='Event Only')?(v('f-subEnd')||null):null,
-    salesRepName:v('f-repName'),salesRepEmail:v('f-repEmail'),
-  };
-  const btn=document.getElementById('btn-submit');
-  btn.disabled=true;btn.textContent='Creating…';
-  try {
-    const res=await fetch('/api/deals',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    const data=await res.json();
-    if(!res.ok)throw new Error(data.error||'Failed');
-    closePanel();resetForm();
-  } catch(err){alert('Error: '+err.message);}
-  finally{btn.disabled=false;btn.textContent='Create Deal →';}
-}
-function resetForm(){
-  document.getElementById('deal-form').reset();
-  ['company','dealType','invoiceAmount','aum','contactName','contactEmail','contactMobile','repName','repEmail','events','subEnd'].forEach(clearErr);
-  document.getElementById('csm-preview').style.display='none';
-  document.getElementById('sub-end-row').classList.remove('hidden');
-}
-function openPanel(){document.getElementById('overlay').classList.add('open');document.getElementById('panel').classList.add('open');document.getElementById('f-company').focus();}
-function closePanel(){document.getElementById('overlay').classList.remove('open');document.getElementById('panel').classList.remove('open');}
-
-// ── SSE ───────────────────────────────────────────────────────────────────────
-function connectSSE() {
-  const es = new EventSource('/api/events');
-
-  es.addEventListener('update', e => {
-    const { dealId, state } = JSON.parse(e.data);
-    if (states[dealId] !== undefined) {
-      states[dealId] = state;
-      placeCard(dealId, true);
-      updateKpis();
-      if (activeDetailId === dealId) {
-        renderDetailShell();
-        refreshDetailArtifacts(dealId);
-      }
-    }
-  });
-
-  es.addEventListener('newdeal', e => {
-    const { deal, state } = JSON.parse(e.data);
-    deals[deal.id]  = deal;
-    states[deal.id] = state;
-    placeCard(deal.id, true);
-    updateKpis();
-  });
-
-  es.addEventListener('reset', () => {
-    for (const id of Object.keys(deals)) {
-      if (!seedDealIds.has(id)) {
-        document.getElementById('kcard-' + id)?.remove();
-        delete deals[id]; delete states[id]; delete dealCols[id];
-      }
-    }
-    for (const id of seedDealIds) {
-      states[id] = { dealId:id, company:deals[id]?.company||'', stages:{A:'pending',B:'pending',C:'pending',D:'pending',E:'pending',F:'pending',G:'pending'}, auditLog:[] };
-      dealCols[id] = null;
-      document.getElementById('kcard-' + id)?.remove();
-    }
-    for (const id of seedDealIds) placeCard(id, false);
-    updateKpis();
-    document.getElementById('btn-run').disabled    = false;
-    document.getElementById('btn-run').textContent = '▶ Run All Deals';
-    document.getElementById('btn-reset').disabled  = false;
-  });
-
-  es.addEventListener('complete', () => {
-    document.getElementById('btn-run').disabled    = false;
-    document.getElementById('btn-run').textContent = '▶ Run Again';
-    document.getElementById('btn-reset').disabled  = false;
-  });
-
-  es.onerror = () => setTimeout(connectSSE, 2000);
-}
-
-// ── Actions ───────────────────────────────────────────────────────────────────
 async function doRun() {
-  document.getElementById('btn-run').disabled    = true;
-  document.getElementById('btn-run').textContent = 'Running…';
-  document.getElementById('btn-reset').disabled  = true;
-  await fetch('/api/run', { method: 'POST' });
+  const btn=document.getElementById('run-btn');
+  if(btn){btn.disabled=true;btn.textContent='Starting…';}
+  const r=await apiRun();
+  toast(r.error?'Already running — wait for completion':'Pipeline started for all 12 deals');
+  if(btn){btn.disabled=false;btn.innerHTML='▶ Run Pipeline';}
 }
 async function doReset() {
-  document.getElementById('btn-reset').disabled = true;
-  await fetch('/api/reset', { method: 'POST' });
+  if(!confirm('Reset all deal states? This cannot be undone.')) return;
+  await apiReset(); await loadDeals(); toast('All deals reset'); route();
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
+   ALL DEALS
+═══════════════════════════════════════════════════════════ */
+function renderDeals() {
+  setBc([{label:'Dashboard',path:''},{label:'All Deals'}]);
+  document.getElementById('page').innerHTML=`
+  <div class="page-head"><div><h1>All Deals</h1><p>${S.deals.length} deals in pipeline</p></div></div>
+  <div class="tbl-wrap" id="dtw">${buildDealsTable()}</div>`;
+}
+function buildDealsTable() {
+  const deals=filteredDeals();
+  const chips=(key,opts)=>opts.map(v=>`<button class="chip${S.filters[key]===v?' active':''}" onclick="S.filters.${key}='${v}';refreshTbl()">${v==='all'?'All':v}</button>`).join('');
+  return `
+  <div class="tbl-toolbar">
+    <div class="tbl-search-wrap">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="tbl-search" placeholder="Search company, contact, ID…" value="${escH(S.search)}" oninput="S.search=this.value;refreshTbl()">
+    </div>
+    <div class="filter-chips"><span class="filter-label">Type:</span>${chips('type',['all','New Client','Platform Renewal','Event Only'])}</div>
+    <div class="filter-chips"><span class="filter-label">Tier:</span>${chips('tier',['all','Enterprise','Scale'])}</div>
+    <div class="filter-chips"><span class="filter-label">Status:</span>
+      ${['all','running','complete','followup','failed','pending'].map(v=>`<button class="chip${S.filters.status===v?' active':''}" onclick="S.filters.status='${v}';refreshTbl()">${v==='all'?'All':SLBL[v]??v}</button>`).join('')}
+    </div>
+    <span class="tbl-count">${deals.length} result${deals.length!==1?'s':''}</span>
+  </div>
+  <div style="overflow-x:auto"><table>
+    <thead><tr>
+      ${th('id','ID')} ${th('company','Company')} ${th('type','Type')}
+      ${th('invoice','Invoice','right')} ${th('aum','AUM','right')}
+      ${th('csm','CSM')} <th>Pipeline</th> ${th('status','Status')} <th>Override</th>
+    </tr></thead>
+    <tbody>${deals.map(dealRow).join('')||'<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-3)">No results match your filters.</td></tr>'}</tbody>
+  </table></div>`;
+}
+function th(col,lbl,align) {
+  const s=S.sort.col===col,arr=s?(S.sort.dir==='asc'?'↑':'↓'):'↕';
+  return `<th class="${s?'sorted':''}"${align==='right'?' style="text-align:right"':''} onclick="sortBy('${col}')">${lbl}<span class="sa">${arr}</span></th>`;
+}
+function dealRow(d) {
+  const st=overallStatus(d),csm=d.state?.assignedCsm,man=hasManual(d);
+  return `<tr class="clickable" id="row-${d.id}" onclick="navigate('/deals/${escH(d.id)}')">
+    <td class="cell-id">${escH(d.id)}</td>
+    <td><div style="font-weight:600">${escH(d.company)}</div><div style="font-size:12px;color:var(--text-3);margin-top:1px">${escH(d.primaryContact?.name??'')}</div></td>
+    <td>${typePill(d.dealType)}</td>
+    <td class="cell-num">${fmtK(d.invoiceAmount)}</td>
+    <td class="cell-num">${fmtMoney(d.aumDollars)}</td>
+    <td>${csm?`<div style="font-size:13px;font-weight:500">${escH(csm.name)}</div><div style="margin-top:2px">${tierPill(csm.tier)}</div>`:'<span style="color:var(--text-3)">—</span>'}</td>
+    <td><div class="pipeline-pips">${pips(d.state?.stages)}</div></td>
+    <td>${pill(st)}</td>
+    <td>${man?manualBadge():''}</td>
+  </tr>`;
+}
+function filteredDeals() {
+  let ds=[...S.deals];
+  const q=S.search.toLowerCase();
+  if(q) ds=ds.filter(d=>d.company.toLowerCase().includes(q)||d.id.toLowerCase().includes(q)||(d.primaryContact?.name??'').toLowerCase().includes(q));
+  if(S.filters.type!=='all')   ds=ds.filter(d=>d.dealType===S.filters.type);
+  if(S.filters.tier!=='all')   ds=ds.filter(d=>d.state?.assignedCsm?.tier===S.filters.tier);
+  if(S.filters.status!=='all') ds=ds.filter(d=>overallStatus(d)===S.filters.status);
+  const {col,dir}=S.sort;
+  ds.sort((a,b)=>{
+    let av,bv;
+    if(col==='id')      {av=a.id;bv=b.id;}
+    else if(col==='company'){av=a.company;bv=b.company;}
+    else if(col==='type')  {av=a.dealType;bv=b.dealType;}
+    else if(col==='invoice'){av=a.invoiceAmount;bv=b.invoiceAmount;}
+    else if(col==='aum')   {av=a.aumDollars;bv=b.aumDollars;}
+    else if(col==='csm')   {av=a.state?.assignedCsm?.name??'';bv=b.state?.assignedCsm?.name??'';}
+    else if(col==='status'){av=overallStatus(a);bv=overallStatus(b);}
+    else{av=a.id;bv=b.id;}
+    if(av<bv) return dir==='asc'?-1:1; if(av>bv) return dir==='asc'?1:-1; return 0;
+  });
+  return ds;
+}
+function sortBy(col){if(S.sort.col===col)S.sort.dir=S.sort.dir==='asc'?'desc':'asc';else{S.sort.col=col;S.sort.dir='asc';}refreshTbl();}
+function refreshTbl(){const w=document.getElementById('dtw');if(w)w.innerHTML=buildDealsTable();}
+function patchDealsRow(id){const d=S.byId[id];if(!d)return;const row=document.getElementById('row-'+id);if(row){const t=document.createElement('tbody');t.innerHTML=dealRow(d);row.replaceWith(t.firstChild);}}
+
+/* ═══════════════════════════════════════════════════════════
+   DEAL DETAIL
+═══════════════════════════════════════════════════════════ */
+let _detailId=null;
+
+async function renderDetail(id) {
+  _detailId=id;
+  const cached=S.byId[id]??{id,company:id,state:null};
+  setBc([{label:'Dashboard',path:''},{label:'All Deals',path:'deals'},{label:cached.company??id}]);
+  document.getElementById('page').innerHTML='<div style="text-align:center;padding:60px;color:var(--text-3)">Loading…</div>';
+  const det=await loadDetail(id).catch(()=>null);
+  if(!det){document.getElementById('page').innerHTML='<div class="card card-body" style="padding:40px;text-align:center;color:var(--text-3)">Deal not found.</div>';return;}
+  const{deal:fd,state:st,emails,teamsMutations,replies}=det;
+  setBc([{label:'Dashboard',path:''},{label:'All Deals',path:'deals'},{label:fd.company}]);
+  if(!S.curTab[id]) S.curTab[id]='overview';
+  drawDetail(fd,st,emails,replies,teamsMutations);
+}
+
+function drawDetail(fd,st,emails,replies,teamsMutations) {
+  const id=fd.id, tab=S.curTab[id]??'overview';
+  document.getElementById('page').innerHTML=`
+  ${dealHeader(fd,st)}
+  <div class="detail-layout">
+    <div>
+      <div class="tabs">
+        ${tabBtn('overview','Overview',id)} ${tabBtn('timeline','Timeline',id)}
+        ${tabBtn('emails',`Emails`,id,emails.length+replies.length)}
+        ${tabBtn('audit','Audit Log',id,st?.auditLog?.length??0)}
+      </div>
+      <div id="tab-content">${renderTab(tab,fd,st,emails,replies,teamsMutations)}</div>
+    </div>
+    <div id="detail-sidebar">${renderSidebar(fd,st,teamsMutations)}</div>
+  </div>`;
+}
+
+function tabBtn(name,lbl,id,cnt) {
+  const active=S.curTab[id]===name;
+  const badge=cnt!=null?`<span class="tab-count">${cnt}</span>`:'';
+  return `<button class="tab-btn${active?' active':''}" onclick="switchTab('${name}','${escH(id)}')">${lbl}${badge}</button>`;
+}
+function switchTab(name,id) {
+  S.curTab[id]=name;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  const d=S.detail[id];
+  if(d) document.getElementById('tab-content').innerHTML=renderTab(name,d.deal,d.state,d.emails,d.replies,d.teamsMutations);
+}
+function renderTab(tab,fd,st,emails,replies,teamsMutations) {
+  if(tab==='overview') return renderOverview(fd,st);
+  if(tab==='timeline') return renderTimeline(fd,st);
+  if(tab==='emails')   return renderEmails(fd,emails,replies);
+  if(tab==='audit')    return renderAudit(fd,st);
+  return '';
+}
+
+function dealHeader(fd,st) {
+  const status=overallStatus({state:st}), csm=st?.assignedCsm;
+  const curStage=(()=>{
+    if(st?.stages?.G==='complete') return 'G: Onboarded';
+    const r=SK.find(k=>st?.stages?.[k]==='running'); if(r) return `${r}: ${SNAME[r]}`;
+    const done=SK.filter(k=>st?.stages?.[k]==='complete'); if(done.length) {const l=done.at(-1);return `${l}: ${SNAME[l]}`;}
+    return 'Not started';
+  })();
+  return `<div class="deal-header">
+    <div class="deal-header-top">
+      <div class="deal-header-title">
+        <h1>${escH(fd.company)}</h1>
+        <div class="deal-meta">
+          <span class="deal-id">${escH(fd.id)}</span>
+          ${typePill(fd.dealType)} ${pill(status)}
+          ${st?.needsHumanFollowUp?'<span class="pill pill-followup">⚠ Needs Follow-Up</span>':''}
+          ${hasManual({state:st})?manualBadge():''}
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="navigate('/deals')">← All Deals</button>
+    </div>
+    <div class="deal-header-stats">
+      <div class="deal-stat"><div class="deal-stat-label">Invoice</div><div class="deal-stat-value brand">${fmtK(fd.invoiceAmount)}</div></div>
+      <div class="deal-stat"><div class="deal-stat-label">AUM</div><div class="deal-stat-value">${fmtMoney(fd.aumDollars)}</div></div>
+      <div class="deal-stat"><div class="deal-stat-label">Sales Rep</div><div class="deal-stat-value" style="font-size:14px">${escH(fd.salesRepName)}</div></div>
+      ${csm?`<div class="deal-stat"><div class="deal-stat-label">CSM</div><div class="deal-stat-value" style="font-size:14px">${escH(csm.name)}</div></div>`:''}
+      <div class="deal-stat"><div class="deal-stat-label">Stage</div><div class="deal-stat-value" style="font-size:14px">${escH(curStage)}</div></div>
+    </div>
+  </div>`;
+}
+
+/* ── Overview ─ */
+function renderOverview(fd,st) {
+  if(!st) return '<div class="card card-empty">No data yet. Run the pipeline first.</div>';
+  const row=(lbl,val)=>val?`<div class="tl-row"><div class="tl-k">${lbl}</div><div class="tl-v">${val}</div></div>`:'';
+  return `<div style="display:flex;flex-direction:column;gap:16px">
+    <div class="card"><div class="card-head"><h2>Invoice &amp; Payment</h2></div><div class="card-body">
+      <div class="tl-rows">
+        ${row('Invoice ID',st.invoiceId?`<span class="tl-v mono">${escH(st.invoiceId)}</span>`:null)}
+        ${row('Amount',fmtK(fd.invoiceAmount))}
+        ${row('Due Date',escH(st.dueDate??'—'))}
+        ${row('Sent At',fmtTs(st.invoiceSentAt))}
+        ${row('Paid At',fmtTs(st.invoicePaidAt))}
+        ${row('Received',st.paymentAmount?`<strong>${fmtK(st.paymentAmount)}</strong>`:null)}
+        ${row('Wait Time',st.paymentWaitMs?fmtDur(st.paymentWaitMs):null)}
+        ${row('Nudges Sent',st.nudgesSent?.length?escH(st.nudgesSent.join(', ')):null)}
+        ${st.needsHumanFollowUp?row('Follow-Up','<span class="pill pill-followup">Payment not received — human action required</span>'):''}
+        ${st.haltReason?row('Halt',`<span style="color:var(--red)">${escH(st.haltReason)}</span>`):''}
+      </div>
+    </div></div>
+    ${st.tagsApplied?`<div class="card"><div class="card-head"><h2>HubSpot Tags</h2></div><div class="card-body">
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+        ${(st.tagsApplied??[]).map(t=>{const n=(st.tagsNewlyApplied??[]).includes(t);return`<span class="pill" style="${n?'background:var(--green-bg);color:var(--green)':'background:var(--bg);color:var(--text-2);border:1px solid var(--border)'}">${n?'+ ':''}${escH(t)}</span>`;}).join('')}
+      </div>
+      <div style="font-size:12px;color:var(--text-3)">${(st.tagsNewlyApplied??[]).length} new · ${(st.tagsExisting??[]).length} already present</div>
+    </div></div>`:''}
+    ${st.assignedCsm?`<div class="card"><div class="card-head"><h2>CSM Assignment</h2></div><div class="card-body">
+      <div class="tl-rows" style="margin-bottom:${st.csmReasoning?'10':'0'}px">
+        ${row('Name',escH(st.assignedCsm.name))}
+        ${row('Tier',tierPill(st.assignedCsm.tier))}
+        ${row('Region',escH(st.assignedCsm.region))}
+        ${row('Email',`<a href="mailto:${escH(st.assignedCsm.email)}" style="color:var(--brand)">${escH(st.assignedCsm.email)}</a>`)}
+      </div>
+      ${st.csmReasoning?`<div style="background:var(--bg);border-radius:4px;padding:10px 12px;font-size:12px;color:var(--text-3);line-height:1.6;margin-top:8px">${escH(st.csmReasoning)}</div>`:''}
+    </div></div>`:''}
+    ${st.copilotCompanyId?`<div class="card"><div class="card-head"><h2>Copilot Registration</h2></div><div class="card-body"><div class="tl-rows">
+      ${row('Company ID',`<span class="tl-v mono">${escH(st.copilotCompanyId)}</span>`)}
+      ${row('Client IDs',st.copilotClientIds?.length?`<span class="tl-v mono">${st.copilotClientIds.map(escH).join(', ')}</span>`:null)}
+      ${row('Sub End',escH(st.computedSubEndDate??fd.subscriptionEndDate??'—'))}
+      ${row('Events',fd.events?.length?escH(fd.events.join(', ')):null)}
+    </div></div></div>`:''}
+  </div>`;
+}
+
+/* ── Timeline ─ */
+function renderTimeline(fd,st) {
+  if(!st) return '<div class="card card-empty">No pipeline data yet.</div>';
+  const manualEntries=(st.auditLog??[]).filter(e=>e.manual);
+  const items=[];
+  for(const k of SK) {
+    items.push({type:'stage',k,status:st.stages[k]??'pending',startTs:st.stageStartedAt?.[k],dur:st.stageDurations?.[k]});
+    for(const m of manualEntries.filter(e=>e.stage===k)) items.push({type:'manual',e:m});
+  }
+  for(const m of manualEntries.filter(e=>!SK.includes(e.stage))) items.push({type:'manual',e:m});
+  return `<div class="timeline">${items.map(item=>tlItem(item,fd,st)).join('')}</div>`;
+}
+function tlItem(item,fd,st) {
+  if(item.type==='manual') {
+    const e=item.e;
+    return `<div class="tl-item"><div class="tl-dot manual">⚡</div><div class="tl-card manual-card">
+      <div class="tl-card-head"><div class="tl-stage-badge manual">M</div><div class="tl-title">Manual Action ${manualBadge()}</div><div class="tl-time">${fmtTs(e.timestamp)}</div></div>
+      <div class="tl-rows">
+        <div class="tl-row"><div class="tl-k">Action</div><div class="tl-v">${escH(actionLabel(e.action))}</div></div>
+        ${e.data&&Object.keys(e.data).length?`<div class="tl-row"><div class="tl-k">Data</div><div class="tl-v" style="font-family:monospace;font-size:11px;color:var(--text-3)">${escH(JSON.stringify(e.data))}</div></div>`:''}
+      </div>
+    </div></div>`;
+  }
+  const {k,status,startTs,dur}=item;
+  const drows=[];
+  if(k==='A'&&st.invoiceId){drows.push(['Invoice ID',`<span class="tl-v mono">${escH(st.invoiceId)}</span>`]);if(st.dueDate)drows.push(['Due Date',escH(st.dueDate)]);}
+  if(k==='B'){if(st.nudge1Date)drows.push(['Nudge 1',escH(st.nudge1Date)]);if(st.nudge2Date)drows.push(['Nudge 2',escH(st.nudge2Date)]);}
+  if(k==='C'){if(st.paymentAmount)drows.push(['Received',`<strong>${fmtK(st.paymentAmount)}</strong>`]);if(st.invoicePaidAt)drows.push(['Paid At',fmtTs(st.invoicePaidAt)]);if(st.nudgesSent?.length)drows.push(['Nudges',escH(st.nudgesSent.join(', '))]);if(st.paymentWaitMs)drows.push(['Wait',fmtDur(st.paymentWaitMs)]);if(st.needsHumanFollowUp)drows.push(['Follow-Up','<span class="pill pill-followup">Needs human contact</span>']);}
+  if(k==='D'){if(st.tagsApplied?.length)drows.push(['Tags',st.tagsApplied.map(escH).join(', ')]);if(st.haltReason)drows.push(['Halt',`<span style="color:var(--red)">${escH(st.haltReason)}</span>`]);}
+  if(k==='E'&&st.assignedCsm){drows.push(['CSM',`${escH(st.assignedCsm.name)} · ${escH(st.assignedCsm.region)}`]);drows.push(['Tier',tierPill(st.assignedCsm.tier)]);}
+  if(k==='F'&&st.copilotCompanyId){drows.push(['Company ID',`<span class="tl-v mono">${escH(st.copilotCompanyId)}</span>`]);if(st.copilotClientIds?.length)drows.push(['Clients',String(st.copilotClientIds.length)]);}
+  if(k==='G'&&status==='complete'){drows.push(['HubSpot','Marked Closed Won']);drows.push(['Emails','CSM notification + client welcome sent']);}
+  const dotCls=status==='pending'?'pending':status;
+  const dotIcon=status==='complete'?'✓':status==='failed'?'✕':status==='running'?'◌':'○';
+  const badgeCls=status==='pending'?'dim':status==='failed'?'fail':'';
+  const cardCls=status==='failed'?'failed-card':(k==='C'&&st.needsHumanFollowUp)?'followup-card':'';
+  return `<div class="tl-item"><div class="tl-dot ${dotCls}">${dotIcon}</div><div class="tl-card ${cardCls}">
+    <div class="tl-card-head">
+      <div class="tl-stage-badge ${badgeCls}">${k}</div>
+      <div class="tl-title">${escH(SNAME[k])}</div>
+      ${pill(status)}
+      ${startTs?`<div class="tl-time">${fmtTs(startTs)}</div>`:''}
+      ${dur?`<span class="tl-dur">${fmtDur(dur)}</span>`:''}
+    </div>
+    ${drows.length?`<div class="tl-rows">${drows.map(([kk,vv])=>`<div class="tl-row"><div class="tl-k">${escH(kk)}</div><div class="tl-v">${vv}</div></div>`).join('')}</div>`:''}
+  </div></div>`;
+}
+
+/* ── Emails ─ */
+const ETYPES={invoice:'Invoice',nudge1:'Reminder 1',nudge2:'Reminder 2 (Overdue)',csm_notification:'CSM Notification',client_welcome:'Welcome Email'};
+function renderEmails(fd,emails,replies) {
+  const all=[...emails.map(e=>({...e,dir:'out'})),...replies.map(r=>({...r,dir:'in',bodyText:r.body}))].sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp));
+  if(!all.length) return '<div class="card card-empty">No emails yet — will appear once the pipeline runs.</div>';
+  return `<div class="email-list">${all.map(e=>{
+    const out=e.dir==='out';
+    const tlbl=out?(ETYPES[e.type]??e.type):'Client Reply';
+    return `<div class="email-card ${out?'outbound':'inbound'}">
+      <div class="email-card-head">
+        <span class="email-dir ${out?'out':'in'}">${out?'↑ Outbound':'↓ Inbound'}</span>
+        <span class="email-type-lbl">${escH(tlbl)}</span>
+        <span class="email-ts">${fmtTs(e.timestamp)}</span>
+      </div>
+      <div class="email-fields">
+        <div class="ef"><div class="ef-k">From</div><div class="ef-v">${out?'finance@iconnections.io':escH(e.fromName?`${e.fromName} <${e.fromEmail??''}>`:(e.fromEmail??''))}</div></div>
+        <div class="ef"><div class="ef-k">To</div><div class="ef-v">${escH(e.to??e.toEmail??'')}</div></div>
+        ${e.cc?`<div class="ef"><div class="ef-k">CC</div><div class="ef-v">${escH(e.cc)}</div></div>`:''}
+      </div>
+      <div class="email-subj">${escH(e.subject??'')}</div>
+      <div class="email-body">${escH(e.bodyText??e.body??'')}</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+/* ── Audit ─ */
+function renderAudit(fd,st) {
+  const log=st?.auditLog??[];
+  return `
+  <div class="manual-form">
+    <h3>⚡ Log Manual Action</h3>
+    <div class="manual-row">
+      <input class="f-input" id="m-action" placeholder="action_key (e.g. force_reassign_csm)" style="flex:0 0 220px">
+      <input class="f-input" id="m-notes"  placeholder="Notes / reason for override">
+      <select class="f-input" id="m-stage" style="flex:0 0 100px">
+        ${SK.map(k=>`<option value="${k}">Stage ${k}</option>`).join('')}<option value="manual" selected>Manual</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="submitManual('${escH(fd.id)}')">Log</button>
+    </div>
+  </div>
+  ${!log.length?'<div class="card card-empty">No audit entries yet.</div>':`
+  <div class="tbl-wrap"><table class="audit-tbl">
+    <thead><tr><th>Timestamp</th><th>Stage</th><th>Action</th><th>Type</th><th>Data</th></tr></thead>
+    <tbody>${[...log].reverse().map(e=>`<tr class="${e.manual?'audit-manual':''}">
+      <td>${fmtTs(e.timestamp)}</td>
+      <td><span style="font-family:monospace;font-size:12px;font-weight:700;color:var(--brand)">${escH(e.stage)}</span></td>
+      <td class="audit-action">${escH(actionLabel(e.action))}</td>
+      <td>${e.manual?'<span class="pill pill-manual" style="font-size:10.5px">Manual</span>':'<span class="pill pill-pending" style="font-size:10.5px">Auto</span>'}</td>
+      <td class="audit-data" title="${escH(JSON.stringify(e.data??{}))}">${e.data?escH(JSON.stringify(e.data)):'—'}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>`}`;
+}
+async function submitManual(id) {
+  const action=document.getElementById('m-action')?.value?.trim();
+  const notes=document.getElementById('m-notes')?.value?.trim();
+  const stage=document.getElementById('m-stage')?.value;
+  if(!action){toast('Enter an action name');return;}
+  await apiAction(id,action,{notes,stage});
+  toast('Manual action logged');
+  const d=await loadDetail(id);
+  document.getElementById('tab-content').innerHTML=renderAudit(d.deal,d.state);
+}
+
+/* ── Sidebar ─ */
+function renderSidebar(fd,st,teamsMutations) {
+  const csm=st?.assignedCsm;
+  const srow=(lbl,val,mono)=>`<div class="sidebar-row"><div class="sidebar-row-label">${lbl}</div><div class="sidebar-row-value${mono?' mono':''}">${val}</div></div>`;
+  return `
+  ${csm?`<div class="sidebar-section"><div class="sidebar-section-head">Assigned CSM</div>
+    ${srow('Name',escH(csm.name))} ${srow('Tier',tierPill(csm.tier))} ${srow('Region',escH(csm.region))} ${srow('Email',`<a href="mailto:${escH(csm.email)}" style="color:var(--brand)">${escH(csm.email)}</a>`)}
+  </div>`:''}
+  <div class="sidebar-section"><div class="sidebar-section-head">Deal Info</div>
+    ${srow('Sales Rep',escH(fd.salesRepName))} ${srow('Rep Email',escH(fd.salesRepEmail))}
+    ${srow('Contact',escH(fd.primaryContact?.name??''))} ${srow('Mobile',escH(fd.primaryContact?.mobile??''))}
+    ${fd.subscriptionEndDate?srow('Sub End',escH(fd.subscriptionEndDate)):''}
+    ${fd.events?.length?srow('Events',fd.events.map(escH).join('<br>')):''}
+  </div>
+  ${(st?.invoiceId||st?.copilotCompanyId||st?.teamsCardId)?`<div class="sidebar-section"><div class="sidebar-section-head">System IDs</div>
+    ${st.invoiceId?srow('Invoice',escH(st.invoiceId),true):''}
+    ${st.copilotCompanyId?srow('Copilot Co.',escH(st.copilotCompanyId),true):''}
+    ${(st.copilotClientIds??[]).map((c,i)=>srow(`Client ${i+1}`,escH(c),true)).join('')}
+    ${st.teamsCardId?srow('Teams Card',escH(st.teamsCardId),true):''}
+  </div>`:''}
+  ${teamsMutations?.length?`<div class="sidebar-section"><div class="sidebar-section-head">Teams History (${teamsMutations.length})</div>
+    ${teamsMutations.map(m=>`<div class="sidebar-row"><div class="sidebar-row-label">${escH(m.type)} · ${fmtTs(m.timestamp)}</div><div class="sidebar-row-value" style="font-size:12px">${escH(m.patchReason??m.cardState?.headerStage??'')}</div></div>`).join('')}
+  </div>`:''}
+  ${st?.stageDurations&&Object.keys(st.stageDurations).length?`<div class="sidebar-section"><div class="sidebar-section-head">Stage Durations</div>
+    ${SK.filter(k=>st.stageDurations?.[k]!=null).map(k=>`<div class="sidebar-row"><div class="sidebar-row-label">Stage ${k} — ${escH(SNAME[k])}</div><div class="sidebar-row-value">${fmtDur(st.stageDurations[k])}</div></div>`).join('')}
+  </div>`:''}`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NEW DEAL
+═══════════════════════════════════════════════════════════ */
+function renderNew() {
+  setBc([{label:'Dashboard',path:''},{label:'All Deals',path:'deals'},{label:'New Deal'}]);
+  document.getElementById('page').innerHTML=`
+  <div class="page-head"><div><h1>New Deal</h1><p>Submit a deal to kick off the onboarding pipeline.</p></div></div>
+  <div style="max-width:740px"><div class="card"><div class="card-body" style="padding:28px 32px">
+
+    <div class="form-section"><div class="form-section-title">Company &amp; Deal</div>
+    <div class="form-grid">
+      <div class="form-group"><label for="fc">Company Name *</label><input class="fc" id="fc" placeholder="Meridian Capital Partners"></div>
+      <div class="form-group"><label for="ft">Deal Type *</label><select class="fc" id="ft"><option value="">Select…</option><option>New Client</option><option>Platform Renewal</option><option>Event Only</option></select></div>
+      <div class="form-group"><label for="fi">Invoice Amount ($) *</label><input class="fc" id="fi" type="number" placeholder="25000"></div>
+      <div class="form-group"><label for="fa">AUM ($) *</label><input class="fc" id="fa" type="number" placeholder="500000000"></div>
+    </div></div>
+
+    <div class="form-section"><div class="form-section-title">Primary Contact</div>
+    <div class="form-grid g3">
+      <div class="form-group"><label for="fcn">Full Name *</label><input class="fc" id="fcn" placeholder="Sarah Kowalski"></div>
+      <div class="form-group"><label for="fce">Email *</label><input class="fc" id="fce" type="email" placeholder="s.kowalski@firm.com"></div>
+      <div class="form-group"><label for="fcm">Mobile *</label><input class="fc" id="fcm" placeholder="+1 212 555 0100"><div class="fhint">Used for region: +1 Americas · +44/+41/+353 EMEA · +65 APAC</div></div>
+    </div></div>
+
+    <div class="form-section"><div class="form-section-title">Sales Rep</div>
+    <div class="form-grid">
+      <div class="form-group"><label for="frn">Rep Name *</label><input class="fc" id="frn" placeholder="Jordan Mills"></div>
+      <div class="form-group"><label for="fre">Rep Email *</label><input class="fc" id="fre" type="email" placeholder="jmills@iconnections.io"></div>
+    </div></div>
+
+    <div class="form-section"><div class="form-section-title">Optional</div>
+    <div class="form-grid">
+      <div class="form-group"><label for="fse">Subscription End Date</label><input class="fc" id="fse" type="date"></div>
+      <div class="form-group s2"><label for="fev">Events (comma-separated)</label><input class="fc" id="fev" placeholder="Global Alts Miami 2026, Family Office Summit NYC 2026"><div class="fhint">Match event names exactly from the fixture list</div></div>
+    </div></div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:12px;border-top:1px solid var(--border)">
+      <button class="btn btn-secondary" onclick="navigate('/deals')">Cancel</button>
+      <button class="btn btn-primary" id="sbtn" onclick="submitDeal()">+ Create Deal &amp; Start Pipeline</button>
+    </div>
+
+  </div></div></div>`;
+}
+async function submitDeal() {
+  const g=id=>document.getElementById(id)?.value?.trim();
+  const fc=g('fc'),ft=g('ft'),fi=g('fi'),fa=g('fa'),fcn=g('fcn'),fce=g('fce'),fcm=g('fcm'),frn=g('frn'),fre=g('fre');
+  if(!fc||!ft||!fi||!fa||!fcn||!fce||!fcm||!frn||!fre){toast('Fill in all required fields');return;}
+  const btn=document.getElementById('sbtn');
+  btn.disabled=true; btn.textContent='Creating…';
+  const evRaw=g('fev'), se=g('fse');
+  try {
+    const r=await apiNew({company:fc,dealType:ft,invoiceAmount:Number(fi),aumDollars:Number(fa),primaryContact:{name:fcn,email:fce,mobile:fcm},salesRepName:frn,salesRepEmail:fre,subscriptionEndDate:se||null,events:evRaw?evRaw.split(',').map(e=>e.trim()).filter(Boolean):[]});
+    if(r.dealId){toast(`Deal ${r.dealId} created — pipeline running`);await loadDeals();navigate('/deals/'+r.dealId);}
+    else{toast(r.error??'Failed to create deal');btn.disabled=false;btn.textContent='+ Create Deal & Start Pipeline';}
+  } catch{toast('Network error');btn.disabled=false;btn.textContent='+ Create Deal & Start Pipeline';}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLOBAL SEARCH
+═══════════════════════════════════════════════════════════ */
+function initSearch() {
+  const inp=document.getElementById('gsearch'), res=document.getElementById('gsearch-results');
+  inp.addEventListener('input',()=>{
+    const q=inp.value.trim().toLowerCase();
+    if(!q){res.classList.add('hidden');return;}
+    const matches=S.deals.filter(d=>d.company.toLowerCase().includes(q)||d.id.toLowerCase().includes(q)||(d.primaryContact?.name??'').toLowerCase().includes(q)).slice(0,8);
+    if(!matches.length){res.classList.add('hidden');return;}
+    res.classList.remove('hidden');
+    res.innerHTML=matches.map(d=>`<div class="gsearch-item" onclick="inp.value='';res.classList.add('hidden');navigate('/deals/${escH(d.id)}')">
+      <span class="gsearch-item-id">${escH(d.id)}</span>
+      <span class="gsearch-item-name">${escH(d.company)}</span>
+      ${pill(overallStatus(d))}
+    </div>`).join('');
+  });
+  inp.addEventListener('keydown',e=>{if(e.key==='Escape'){inp.value='';res.classList.add('hidden');}});
+  document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))res.classList.add('hidden');});
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
 async function init() {
-  buildEventGrid();
-  buildBoard();
-  const data = await fetch('/api/deals').then(r => r.json());
-  for (const item of data) {
-    if (!item) continue;
-    deals[item.id]  = item;
-    states[item.id] = item.state;
-  }
-  for (const id of Object.keys(deals)) {
-    seedDealIds.add(id);
-    placeCard(id, false);
-  }
-  updateKpis();
-  connectSSE();
+  initSearch();
+  initSSE();
+  await loadDeals();
 }
-
-init();
 </script>
 </body>
 </html>
