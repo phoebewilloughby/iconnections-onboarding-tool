@@ -272,6 +272,61 @@ async function processBulk(): Promise<void> {
   isBulkRunning = false;
 }
 
+// ── Resume helpers ─────────────────────────────────────────────────────────────
+
+function makeResumeClients(dealId: string, deal: Deal): Clients {
+  const existing = dealClients.get(dealId);
+  const email = existing?.email ?? new EmailMockClient();
+  const teams = existing?.teams ?? new TeamsMockClient();
+  if (!existing) dealClients.set(dealId, { email, teams });
+  return {
+    hubspot:  new HubSpotMockClient([deal]),
+    copilot:  new CopilotMockClient(),
+    invoice:  new InvoiceMockClient(0),
+    email,
+    teams,
+  };
+}
+
+async function resumePipeline(deal: Deal, startingState: DealState, router: CsmRouter): Promise<void> {
+  let state = startingState;
+  const clients = makeResumeClients(deal.id, deal);
+  const PAUSE = 4_000;
+  const BOOT  = 800;
+  const log = (msg: string) => process.stdout.write(`  [${deal.id}] RESUME ${msg}\n`);
+  const emit = (s: DealState) => { dealStates.set(deal.id, s); broadcast('update', { dealId: deal.id, state: s }); };
+
+  try {
+    if (state.stages.D !== 'complete') {
+      state.stages.D = 'running'; emit(state); await sleep(BOOT);
+      state = await runStageD(deal, state, clients);
+      if (state.stages.D === 'failed') { log(`HALT — ${state.haltReason}`); emit(state); return; }
+      log('Stage D done'); emit(state); await sleep(PAUSE);
+    }
+    if (state.stages.E !== 'complete') {
+      state.stages.E = 'running'; emit(state); await sleep(BOOT);
+      state = await runStageE(deal, state, clients, router, CSMS);
+      log(`Stage E done — ${state.assignedCsm?.name}`); emit(state); await sleep(PAUSE);
+    }
+    if (state.stages.F !== 'complete') {
+      state.stages.F = 'running'; emit(state); await sleep(BOOT);
+      state = await runStageF(deal, state, clients);
+      log(`Stage F done — copilot ${state.copilotCompanyId}`); emit(state); await sleep(PAUSE);
+    }
+    if (state.stages.G !== 'complete') {
+      state.stages.G = 'running'; emit(state); await sleep(BOOT);
+      state = await runStageG(deal, state, clients, EVENTS);
+      const tc = dealClients.get(deal.id)?.teams;
+      if (tc) state.teamsMutationCount = tc.getMutations(deal.id).length;
+      log('Stage G done — onboarded'); emit(state);
+    }
+    const s = dealStates.get(deal.id);
+    if (s) dealReplies.set(deal.id, generateReplies(deal, s));
+  } catch (err) {
+    console.error(`[${deal.id}] RESUME ERROR:`, err);
+  }
+}
+
 // ── Routes ─────────────────────────────────────────────────────────────────────
 
 app.use(express.static(path.join(process.cwd(), 'public')));
@@ -303,12 +358,25 @@ app.get('/api/deals/:id', (req, res) => {
   res.json({ deal, state, emails, teamsMutations, replies });
 });
 
-// Human intervention endpoint
+// Human intervention endpoint — logs to audit trail AND mutates state for known actions
 app.post('/api/deals/:id/action', (req, res) => {
   const { id } = req.params;
   const { action, data } = req.body as { action: string; data?: Record<string, unknown> };
   const state = dealStates.get(id);
   if (!state) { res.status(404).json({ error: 'Deal not found' }); return; }
+
+  // State-mutating overrides
+  if (action === 'force_reassign_csm' && data?.csmName) {
+    const csm = CSMS.find(c => c.name === data.csmName);
+    if (csm) {
+      state.assignedCsm  = csm;
+      state.csmReasoning = `Manually reassigned to ${csm.name} (override)`;
+    }
+  }
+  if (action === 'edit_tags' && Array.isArray(data?.tags)) {
+    state.tagsApplied      = data.tags as string[];
+    state.tagsNewlyApplied = data.tags as string[];
+  }
 
   const entry: AuditEntry = {
     timestamp: new Date().toISOString(),
@@ -321,6 +389,55 @@ app.post('/api/deals/:id/action', (req, res) => {
   dealStates.set(id, state);
   broadcast('update', { dealId: id, state });
   res.json({ ok: true, entry });
+});
+
+app.get('/api/csms', (_req, res) => {
+  res.json(CSMS);
+});
+
+// Resume a halted or needs-follow-up deal from Stage D
+app.post('/api/deals/:id/resume', (req, res) => {
+  const { id } = req.params;
+  const state = dealStates.get(id);
+  if (!state) { res.status(404).json({ error: 'Deal not found' }); return; }
+
+  const seedById = new Map(DEALS.map(d => [d.id, d]));
+  const deal = seedById.get(id) ?? runtimeDeals.get(id);
+  if (!deal) { res.status(404).json({ error: 'Deal not found' }); return; }
+
+  if (!state.needsHumanFollowUp && !state.haltReason) {
+    res.status(400).json({ error: 'Deal is not halted or awaiting follow-up' });
+    return;
+  }
+
+  const now = new Date().toISOString();
+
+  if (state.needsHumanFollowUp) {
+    state.needsHumanFollowUp = false;
+    state.stages.C     = 'complete';
+    state.invoicePaidAt = now;
+    state.paymentAmount = deal.invoiceAmount;
+    state.auditLog.push({
+      timestamp: now, stage: 'C', action: 'payment_manually_confirmed',
+      data: { amount: deal.invoiceAmount, method: 'manual_override' }, manual: true,
+    });
+  }
+
+  if (state.haltReason) {
+    const prev = state.haltReason;
+    delete state.haltReason;
+    state.stages.D = 'pending';
+    state.auditLog.push({
+      timestamp: now, stage: 'D', action: 'halt_cleared',
+      data: { previousReason: prev }, manual: true,
+    });
+  }
+
+  dealStates.set(id, state);
+  broadcast('update', { dealId: id, state });
+  res.json({ ok: true });
+
+  resumePipeline(deal, state, new CsmRouter()).catch(console.error);
 });
 
 const runtimeDeals = new Map<string, Deal>();

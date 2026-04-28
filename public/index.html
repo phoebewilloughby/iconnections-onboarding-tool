@@ -559,6 +559,47 @@ select.fc { cursor: pointer; }
 /* ── Home grid ─────────────────────────────────────────────────────────── */
 .home-grid { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
 
+/* ── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width:900px) {
+  .home-grid     { grid-template-columns:1fr; }
+  .detail-layout { grid-template-columns:1fr; }
+}
+@media (max-width:768px) {
+  #sidebar       { width:180px; }
+  .kpi-grid      { grid-template-columns:repeat(2,1fr); }
+  .form-grid,.form-grid.g3 { grid-template-columns:1fr; }
+  .form-group.s2 { grid-column:span 1; }
+  #page          { padding:16px 16px 40px; }
+}
+@media (max-width:560px) {
+  #app       { flex-direction:column; height:auto; min-height:100vh; overflow:auto; }
+  #sidebar   { width:100%; flex-direction:row; align-items:center;
+               border-right:none; border-bottom:1px solid rgba(255,255,255,0.06);
+               padding:0 8px; height:52px; flex-shrink:0; }
+  .sb-brand  { border-bottom:none; padding:0 8px; }
+  .sb-section{ display:flex; gap:2px; padding:0; flex:1; }
+  .sb-label  { display:none; }
+  .sb-spacer { display:none; }
+  .sb-footer { padding:0 8px; }
+  #main-wrap { height:calc(100vh - 52px); }
+  .tbl-toolbar { flex-direction:column; align-items:flex-start; }
+}
+
+/* ── Followup banner ────────────────────────────────────────────────────── */
+.followup-banner {
+  background:var(--amber-bg); border:1px solid rgba(217,119,6,0.3);
+  border-radius:var(--radius); padding:10px 16px;
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:16px; font-size:13px;
+}
+.followup-banner strong { color:var(--amber); }
+
+/* ── Resume action ──────────────────────────────────────────────────────── */
+.btn-resume  { background:var(--amber);  color:white; }
+.btn-resume:hover { background:#B45309; }
+.btn-halt    { background:var(--red-bg); color:var(--red); border:1px solid rgba(220,38,38,0.25); }
+.btn-halt:hover  { background:#FEE2E2; }
+
 /* ── Toast ─────────────────────────────────────────────────────────────── */
 #toast {
   position: fixed; bottom: 24px; right: 24px; z-index: 999;
@@ -632,7 +673,7 @@ select.fc { cursor: pointer; }
    STATE
 ═══════════════════════════════════════════════════════════ */
 const S = {
-  deals: [], byId: {}, detail: {},
+  deals: [], byId: {}, detail: {}, csms: [],
   sseOk: false,
   curTab: {},
   sort: { col: 'id', dir: 'asc' },
@@ -693,6 +734,12 @@ async function apiAction(id,action,data) {
 async function apiNew(body) {
   return fetch('/api/deals',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
 }
+async function apiResume(id) {
+  return fetch(`/api/deals/${id}/resume`,{method:'POST'}).then(r=>r.json());
+}
+async function loadCsms() {
+  S.csms = await fetch('/api/csms').then(r=>r.json()).catch(()=>[]);
+}
 
 /* ═══════════════════════════════════════════════════════════
    SSE
@@ -701,9 +748,14 @@ function initSSE() {
   const es = new EventSource('/api/events');
   es.addEventListener('update', e => {
     const {dealId, state:ds} = JSON.parse(e.data);
+    const wasFollowup = S.byId[dealId]?.state?.needsHumanFollowUp;
     if (S.byId[dealId]) S.byId[dealId].state = ds;
     else { const d={id:dealId,company:ds.company,state:ds}; S.byId[dealId]=d; S.deals.push(d); }
     if (S.detail[dealId]) S.detail[dealId].state = ds;
+    if (!wasFollowup && ds.needsHumanFollowUp) {
+      const company = S.byId[dealId]?.company ?? dealId;
+      toastAlert(`⚠ ${company} — payment not received. Human follow-up required.`);
+    }
     onUpdate(dealId);
   });
   es.addEventListener('newdeal', e => {
@@ -783,6 +835,13 @@ function actionLabel(a) {
 function toast(msg,dur=3000) {
   const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),dur);
+}
+function toastAlert(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.background='var(--amber)';
+  t.classList.add('show');
+  setTimeout(()=>{ t.classList.remove('show'); t.style.background=''; }, 7000);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1048,6 +1107,15 @@ function dealHeader(fd,st) {
     const done=SK.filter(k=>st?.stages?.[k]==='complete'); if(done.length) {const l=done.at(-1);return `${l}: ${SNAME[l]}`;}
     return 'Not started';
   })();
+  const resumable = st?.needsHumanFollowUp || !!st?.haltReason;
+  const resumeBtn = resumable
+    ? `<button class="btn btn-resume btn-sm" onclick="doResume('${escH(fd.id)}')">▶ Resume Pipeline</button>`
+    : '';
+  const haltNote = st?.haltReason
+    ? `<div class="followup-banner" style="margin:12px 0 0"><strong>⛔ Halted:</strong> ${escH(st.haltReason)}</div>`
+    : st?.needsHumanFollowUp
+    ? `<div class="followup-banner" style="margin:12px 0 0"><strong>⚠ Payment not received</strong> — manual follow-up required. Confirm payment then click Resume.</div>`
+    : '';
   return `<div class="deal-header">
     <div class="deal-header-top">
       <div class="deal-header-title">
@@ -1059,8 +1127,12 @@ function dealHeader(fd,st) {
           ${hasManual({state:st})?manualBadge():''}
         </div>
       </div>
-      <button class="btn btn-secondary btn-sm" onclick="navigate('/deals')">← All Deals</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        ${resumeBtn}
+        <button class="btn btn-secondary btn-sm" onclick="navigate('/deals')">← All Deals</button>
+      </div>
     </div>
+    ${haltNote}
     <div class="deal-header-stats">
       <div class="deal-stat"><div class="deal-stat-label">Invoice</div><div class="deal-stat-value brand">${fmtK(fd.invoiceAmount)}</div></div>
       <div class="deal-stat"><div class="deal-stat-label">AUM</div><div class="deal-stat-value">${fmtMoney(fd.aumDollars)}</div></div>
@@ -1225,13 +1297,41 @@ async function submitManual(id) {
   document.getElementById('tab-content').innerHTML=renderAudit(d.deal,d.state);
 }
 
+async function doReassign(id) {
+  const sel = document.getElementById('reassign-select');
+  const csmName = sel?.value;
+  if(!csmName) return;
+  await apiAction(id,'force_reassign_csm',{csmName,stage:'E'});
+  toast(`CSM reassigned to ${csmName}`);
+  const d = await loadDetail(id);
+  document.getElementById('detail-sidebar').innerHTML = renderSidebar(d.deal,d.state,d.teamsMutations);
+}
+
+async function doResume(id) {
+  const btn = document.querySelector('.btn-resume');
+  if(btn){btn.disabled=true;btn.textContent='Resuming…';}
+  const r = await apiResume(id);
+  if(r.error) { toast('Error: '+r.error); if(btn){btn.disabled=false;btn.textContent='▶ Resume Pipeline';} return; }
+  toast('Pipeline resumed — running stages D through G');
+}
+
 /* ── Sidebar ─ */
 function renderSidebar(fd,st,teamsMutations) {
   const csm=st?.assignedCsm;
   const srow=(lbl,val,mono)=>`<div class="sidebar-row"><div class="sidebar-row-label">${lbl}</div><div class="sidebar-row-value${mono?' mono':''}">${val}</div></div>`;
+  const csmOptions = S.csms.length
+    ? S.csms.map(c=>`<option value="${escH(c.name)}"${csm?.name===c.name?' selected':''}>${escH(c.name)} (${escH(c.tier)}, ${escH(c.region)})</option>`).join('')
+    : '';
   return `
   ${csm?`<div class="sidebar-section"><div class="sidebar-section-head">Assigned CSM</div>
     ${srow('Name',escH(csm.name))} ${srow('Tier',tierPill(csm.tier))} ${srow('Region',escH(csm.region))} ${srow('Email',`<a href="mailto:${escH(csm.email)}" style="color:var(--brand)">${escH(csm.email)}</a>`)}
+    ${csmOptions?`<div class="sidebar-row">
+      <div class="sidebar-row-label">Force Reassign</div>
+      <div style="display:flex;gap:6px;margin-top:4px">
+        <select id="reassign-select" style="flex:1;height:28px;font-size:12px;border:1px solid var(--border);border-radius:4px;padding:0 6px;background:var(--bg)">${csmOptions}</select>
+        <button class="btn btn-secondary btn-sm" style="flex-shrink:0" onclick="doReassign('${escH(fd.id)}')">Apply</button>
+      </div>
+    </div>`:''}
   </div>`:''}
   <div class="sidebar-section"><div class="sidebar-section-head">Deal Info</div>
     ${srow('Sales Rep',escH(fd.salesRepName))} ${srow('Rep Email',escH(fd.salesRepEmail))}
@@ -1300,6 +1400,11 @@ async function submitDeal() {
   const g=id=>document.getElementById(id)?.value?.trim();
   const fc=g('fc'),ft=g('ft'),fi=g('fi'),fa=g('fa'),fcn=g('fcn'),fce=g('fce'),fcm=g('fcm'),frn=g('frn'),fre=g('fre');
   if(!fc||!ft||!fi||!fa||!fcn||!fce||!fcm||!frn||!fre){toast('Fill in all required fields');return;}
+  if(Number(fi)<=0){toast('Invoice amount must be greater than $0');return;}
+  if(Number(fa)<=0){toast('AUM must be greater than $0');return;}
+  if(!/^\+\d/.test(fcm)){toast('Mobile must start with a country code, e.g. +1 212 555 0100');return;}
+  if(!fce.includes('@')){toast('Enter a valid contact email');return;}
+  if(!fre.includes('@')){toast('Enter a valid sales rep email');return;}
   const btn=document.getElementById('sbtn');
   btn.disabled=true; btn.textContent='Creating…';
   const evRaw=g('fev'), se=g('fse');
@@ -1337,7 +1442,7 @@ function initSearch() {
 async function init() {
   initSearch();
   initSSE();
-  await loadDeals();
+  await Promise.all([loadDeals(), loadCsms()]);
 }
 </script>
 </body>
