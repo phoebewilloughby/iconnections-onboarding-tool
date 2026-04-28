@@ -556,12 +556,37 @@ select.fc { cursor: pointer; }
 .att-name { font-weight: 600; font-size: 13px; }
 .att-sub  { font-size: 11.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* ── Home grid ─────────────────────────────────────────────────────────── */
-.home-grid { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
+/* ── Stage Funnel ───────────────────────────────────────────────────────── */
+.stage-funnel { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; margin-bottom:24px; }
+.funnel-col { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 10px 12px; text-align:center; }
+.funnel-letter { font-size:11px; font-weight:700; color:var(--brand); letter-spacing:0.06em; }
+.funnel-name { font-size:9.5px; color:var(--text-3); margin:3px 0 10px; line-height:1.3; min-height:26px; display:flex; align-items:center; justify-content:center; }
+.funnel-count { font-size:30px; font-weight:800; color:var(--text-1); line-height:1; }
+.funnel-denom { font-size:10px; color:var(--text-3); margin-top:2px; }
+.funnel-bar { height:3px; border-radius:2px; background:var(--border); margin-top:10px; overflow:hidden; }
+.funnel-bar-fill { height:100%; border-radius:2px; background:var(--brand); transition:width 0.5s; }
+
+/* ── Deal Cards ─────────────────────────────────────────────────────────── */
+.deals-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+.deal-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:18px; cursor:pointer; transition:box-shadow 0.15s,border-color 0.15s; }
+.deal-card:hover { box-shadow:var(--shadow); border-color:rgba(106,43,126,0.4); }
+.dc-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+.dc-company { font-weight:700; font-size:14px; color:var(--text-1); line-height:1.3; flex:1; margin-right:10px; }
+.dc-amount-block { text-align:right; flex-shrink:0; }
+.dc-amount-paid { font-size:20px; font-weight:800; color:var(--green); line-height:1; }
+.dc-amount-inv  { font-size:18px; font-weight:600; color:var(--text-3); line-height:1; }
+.dc-amount-lbl { font-size:9.5px; color:var(--text-3); margin-top:3px; text-transform:uppercase; letter-spacing:0.05em; }
+.dc-pills { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px; }
+.dc-csm { font-size:12px; color:var(--text-2); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.dc-csm-avatar { width:20px; height:20px; border-radius:50%; background:var(--brand-muted); color:var(--brand); font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.dc-events { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px; }
+.dc-ev-tag { background:var(--bg); border:1px solid var(--border); border-radius:3px; padding:2px 7px; font-size:10px; color:var(--text-2); }
+.dc-pips { display:flex; gap:3px; margin-top:4px; }
+.dc-pips .pip { flex:1; }
 
 /* ── Responsive ────────────────────────────────────────────────────────── */
 @media (max-width:900px) {
-  .home-grid     { grid-template-columns:1fr; }
+  .stage-funnel  { grid-template-columns:repeat(4,1fr); }
   .detail-layout { grid-template-columns:1fr; }
 }
 @media (max-width:768px) {
@@ -883,32 +908,18 @@ function toastAlert(msg) {
 ═══════════════════════════════════════════════════════════ */
 function renderHome() {
   setBc([{label:'Dashboard'}]);
-  const kpis=computeKpis(), att=getAttention(), feed=buildFeed();
+  const kpis=computeKpis();
   document.getElementById('page').innerHTML=`
   <div class="page-head">
-    <div><h1>Onboarding Dashboard</h1><p>Live pipeline status across all active deals</p></div>
+    <div><h1>Onboarding Dashboard</h1><p>Live pipeline — ${S.deals.length} deals</p></div>
     <div class="page-head-actions">
       <button class="btn btn-secondary btn-sm" onclick="doReset()">↺ Reset</button>
       <button class="btn btn-primary btn-sm" id="run-btn" onclick="doRun()">▶ Run Pipeline</button>
     </div>
   </div>
   <div class="kpi-grid" id="kpi-grid">${renderKpis(kpis)}</div>
-  <div class="home-grid">
-    <div class="card">
-      <div class="card-head"><h2>Recent Activity</h2><span style="font-size:12px;color:var(--text-3)">${feed.length} events</span></div>
-      <div id="activity-feed">${renderFeed(feed)}</div>
-    </div>
-    <div>
-      <div class="card" style="margin-bottom:12px">
-        <div class="card-head"><h2>Needs Attention</h2></div>
-        <div id="att-list">${renderAtt(att)}</div>
-      </div>
-      <div class="card">
-        <div class="card-head"><h2>Pipeline Summary</h2></div>
-        <div class="card-body" style="padding:14px 16px">${renderPipelineSummary()}</div>
-      </div>
-    </div>
-  </div>`;
+  <div id="stage-funnel">${renderFunnel()}</div>
+  <div id="deals-grid" class="deals-grid">${renderDealCards()}</div>`;
 }
 
 function computeKpis() {
@@ -924,69 +935,67 @@ function computeKpis() {
 }
 function renderKpis(t) {
   return [
-    {lbl:'Total Deals',    val:t.total,    sub:'in pipeline',         col:'var(--brand)'},
-    {lbl:'Completed',      val:t.complete, sub:'fully onboarded',     col:'var(--green)'},
-    {lbl:'In Progress',    val:t.running,  sub:'active stages',       col:'var(--blue)'},
-    {lbl:'Needs Follow-Up',val:t.followup, sub:'human action needed', col:'var(--amber)'},
-    {lbl:'Revenue',        val:fmtMoney(t.revenue), sub:'collected', col:'var(--brand)', raw:true},
-    {lbl:'Manual Actions', val:t.manual,   sub:'deals with overrides',col:'var(--orange)'},
-  ].map(k=>`<div class="kpi-card"><div class="kpi-label">${k.lbl}</div><div class="kpi-value" style="color:${k.col}">${k.raw?k.val:k.val}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
+    {lbl:'Revenue Collected', val:fmtMoney(t.revenue), sub:'total paid',          col:'var(--brand)', raw:true},
+    {lbl:'Completed',         val:t.complete,           sub:'fully onboarded',    col:'var(--green)'},
+    {lbl:'In Progress',       val:t.running,            sub:'active in pipeline', col:'var(--blue)'},
+    {lbl:'Needs Attention',   val:t.followup+t.manual,  sub:'require human action',col:'var(--amber)'},
+  ].map(k=>`<div class="kpi-card"><div class="kpi-label">${k.lbl}</div><div class="kpi-value" style="color:${k.col}">${k.val}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
 }
 function patchKpis() { const el=document.getElementById('kpi-grid'); if(el) el.innerHTML=renderKpis(computeKpis()); }
 
-function buildFeed() {
-  const evs=[];
-  for(const d of S.deals) for(const e of (d.state?.auditLog??[])) evs.push({...e,dealId:d.id,company:d.company});
-  return evs.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp)).slice(0,40);
+const SNAME_SHORT = {A:'Invoice',B:'Nudge',C:'Payment',D:'Tagging',E:'CSM',F:'Copilot',G:'Close'};
+function renderFunnel() {
+  const total=S.deals.length||1;
+  const cols=SK.map(k=>{
+    const done=S.deals.filter(d=>d.state?.stages?.[k]==='complete').length;
+    const pct=Math.round((done/total)*100);
+    return `<div class="funnel-col">
+      <div class="funnel-letter">${k}</div>
+      <div class="funnel-name">${SNAME_SHORT[k]}</div>
+      <div class="funnel-count">${done}</div>
+      <div class="funnel-denom">of ${total}</div>
+      <div class="funnel-bar"><div class="funnel-bar-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+  return `<div class="stage-funnel">${cols}</div>`;
 }
-function renderFeed(feed) {
-  if(!feed.length) return '<div class="card-empty">No activity yet — run the pipeline to get started.</div>';
-  return feed.map(e=>{
-    const dc=e.manual?'manual':e.action?.includes('closed')?'complete':e.action?.includes('halt')||e.action?.includes('failed')?'failed':e.action?.includes('followup')?'followup':'';
-    return `<div class="activity-item">
-      <div class="activity-dot ${dc}"></div>
-      <div class="activity-body">
-        <div class="activity-line">
-          <strong onclick="navigate('/deals/${escH(e.dealId)}')" style="cursor:pointer" onmouseover="this.style.color='var(--brand)'" onmouseout="this.style.color=''">${escH(e.company)}</strong>
-          — ${escH(actionLabel(e.action))}
-          ${e.manual?manualBadge():''}
-          <span style="font-size:11px;color:var(--text-3);margin-left:4px">Stage ${escH(e.stage)}</span>
+
+function dealTier(d) {
+  return (d.aumDollars>1_000_000_000||d.invoiceAmount>25_000)?'Enterprise':'Scale';
+}
+function renderDealCards() {
+  if(!S.deals.length) return `<div style="color:var(--text-3);font-size:13px;padding:12px 0">No deals yet — run the pipeline to get started.</div>`;
+  return S.deals.map(d=>{
+    const st=d.state, status=overallStatus(d);
+    const paid=st?.paymentAmount, tier=dealTier(d);
+    const csm=st?.assignedCsm;
+    const initials=csm?csm.name.split(' ').map(w=>w[0]).join('').slice(0,2):'—';
+    const evList=(d.events||[]).map(e=>`<span class="dc-ev-tag">${escH(e)}</span>`).join('');
+    return `<div class="deal-card" onclick="navigate('/deals/${escH(d.id)}')">
+      <div class="dc-top">
+        <div class="dc-company">${escH(d.company)}</div>
+        <div class="dc-amount-block">
+          ${paid?`<div class="dc-amount-paid">${fmtK(paid)}</div><div class="dc-amount-lbl">Collected</div>`
+                :`<div class="dc-amount-inv">${fmtK(d.invoiceAmount)}</div><div class="dc-amount-lbl">Invoice</div>`}
         </div>
       </div>
-      <div class="activity-time">${relTime(e.timestamp)}</div>
+      <div class="dc-pills">
+        ${pill(status)}
+        ${typePill(d.dealType)}
+        ${tierPill(tier)}
+      </div>
+      ${csm?`<div class="dc-csm"><div class="dc-csm-avatar">${escH(initials)}</div><span>${escH(csm.name)}</span><span style="color:var(--text-3);font-size:11px">${escH(csm.region)}</span></div>`
+           :`<div class="dc-csm" style="color:var(--text-3)">CSM not yet assigned</div>`}
+      ${evList?`<div class="dc-events">${evList}</div>`:''}
+      <div class="dc-pips">${pips(st?.stages)}</div>
     </div>`;
   }).join('');
 }
-function getAttention() {
-  return S.deals.filter(d=>{const st=d.state; return st&&(st.needsHumanFollowUp||SK.some(k=>st.stages[k]==='failed')||hasManual(d));});
-}
-function renderAtt(deals) {
-  if(!deals.length) return '<div class="card-empty">No deals need attention.</div>';
-  return deals.map(d=>{
-    const s=d.state;
-    const type=s?.needsHumanFollowUp?'followup':SK.some(k=>s?.stages?.[k]==='failed')?'failed':'manual';
-    const sub=s?.haltReason??(s?.needsHumanFollowUp?'Payment overdue — needs contact':'Manual override logged');
-    const ic=type==='followup'?'⚠':type==='failed'?'✕':'⚡';
-    return `<div class="attention-item" onclick="navigate('/deals/${escH(d.id)}')">
-      <div class="att-icon ${type}">${ic}</div>
-      <div class="att-body"><div class="att-name">${escH(d.company)}</div><div class="att-sub">${escH(sub)}</div></div>
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-    </div>`;
-  }).join('');
-}
-function renderPipelineSummary() {
-  const by={}; for(const d of S.deals){const s=overallStatus(d);by[s]=(by[s]||0)+1;}
-  const total=S.deals.length||1;
-  return [{k:'complete',l:'Completed'},{k:'running',l:'In Progress'},{k:'followup',l:'Needs Follow-Up'},{k:'failed',l:'Failed'},{k:'pending',l:'Pending'}].map(r=>{
-    const n=by[r.k]??0,pct=Math.round((n/total)*100);
-    const col=r.k==='complete'?'var(--green)':r.k==='running'?'var(--blue)':r.k==='failed'?'var(--red)':r.k==='followup'?'var(--amber)':'var(--border-2)';
-    return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px"><span>${r.l}</span><span style="font-weight:600">${n}</span></div><div style="height:5px;border-radius:3px;background:var(--border);overflow:hidden"><div style="height:100%;width:${pct}%;border-radius:3px;background:${col};transition:width 0.4s"></div></div></div>`;
-  }).join('');
-}
+
 function patchHome() {
-  const f=document.getElementById('activity-feed'); if(f) f.innerHTML=renderFeed(buildFeed());
   patchKpis();
-  const a=document.getElementById('att-list'); if(a) a.innerHTML=renderAtt(getAttention());
+  const f=document.getElementById('stage-funnel'); if(f) f.innerHTML=renderFunnel();
+  const g=document.getElementById('deals-grid'); if(g) g.innerHTML=renderDealCards();
 }
 async function doRun() {
   const btn=document.getElementById('run-btn');
