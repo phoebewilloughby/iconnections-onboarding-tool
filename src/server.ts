@@ -38,7 +38,7 @@ function broadcast(event: string, data: unknown): void {
 
 let isBulkRunning = false;
 let dealStates: Map<string, DealState> = new Map();
-let nextDealId = 2000;
+let nextDealId = 3000;
 
 const dealClients: Map<string, { email: EmailMockClient; teams: TeamsMockClient }> = new Map();
 const dealReplies: Map<string, ClientReply[]> = new Map();
@@ -52,8 +52,127 @@ function makeInitialState(deal: Deal): DealState {
   };
 }
 
+// ── Pre-seeded demo states ─────────────────────────────────────────────────────
+// These deals start in mid-pipeline so the dashboard looks populated on first load.
+
+const DEMO_STATES: Map<string, DealState> = new Map([
+  ['D-2001', {
+    dealId: 'D-2001', company: 'Arrowhead Global Capital',
+    stages: { A: 'complete', B: 'complete', C: 'complete', D: 'complete', E: 'complete', F: 'complete', G: 'complete' },
+    invoiceId: 'INV-2001', invoiceStatus: 'paid',
+    invoiceSentAt: '2026-04-25T09:15:22Z', invoicePaidAt: '2026-04-25T09:16:04Z',
+    paymentAmount: 45_000, dueDate: '2026-05-25',
+    nudge1Date: '2026-05-10', nudge2Date: '2026-05-18', nudgesSent: [],
+    tagsApplied: ['Platform Renewal', 'Global Alts Miami 2026', 'Asia Pacific Forum Singapore 2026'],
+    tagsExisting: [], tagsNewlyApplied: ['Platform Renewal', 'Global Alts Miami 2026', 'Asia Pacific Forum Singapore 2026'],
+    assignedCsm: { name: 'Marcus Whitfield', tier: 'Enterprise', email: 'mwhitfield@iconnections.io', region: 'Americas' },
+    csmReasoning: 'Enterprise tier (AUM $1.5B > $1B threshold), Americas region (+1 prefix) → Marcus Whitfield',
+    copilotCompanyId: 'CPNY-2001-ARWG', copilotClientIds: ['CLT-2001-DC'],
+    computedSubEndDate: '2027-05-31', teamsCardId: 'TC-2001', teamsMutationCount: 7,
+    auditLog: [
+      { timestamp: '2026-04-25T09:15:22Z', stage: 'A', action: 'invoice_sent', data: { invoiceId: 'INV-2001', amount: 45000 } },
+      { timestamp: '2026-04-25T09:21:08Z', stage: 'B', action: 'nudge_schedule_created', data: { nudge1: '2026-05-10', nudge2: '2026-05-18' } },
+      { timestamp: '2026-04-25T09:21:44Z', stage: 'C', action: 'payment_received', data: { amount: 45000, paidAt: '2026-04-25T09:16:04Z' } },
+      { timestamp: '2026-04-25T09:27:31Z', stage: 'D', action: 'tags_applied', data: { tags: ['Platform Renewal', 'Global Alts Miami 2026', 'Asia Pacific Forum Singapore 2026'] } },
+      { timestamp: '2026-04-25T09:33:14Z', stage: 'E', action: 'csm_assigned', data: { csm: 'Marcus Whitfield', tier: 'Enterprise', region: 'Americas' } },
+      { timestamp: '2026-04-25T09:38:57Z', stage: 'F', action: 'copilot_registered', data: { companyId: 'CPNY-2001-ARWG', clients: 1, events: 2 } },
+      { timestamp: '2026-04-25T09:44:40Z', stage: 'G', action: 'deal_closed_onboarded', data: { dealId: 'D-2001' } },
+    ],
+  }],
+  ['D-2002', {
+    dealId: 'D-2002', company: 'Clearwater Partners Group',
+    stages: { A: 'complete', B: 'complete', C: 'complete', D: 'complete', E: 'complete', F: 'complete', G: 'complete' },
+    invoiceId: 'INV-2002', invoiceStatus: 'paid',
+    invoiceSentAt: '2026-04-24T14:02:11Z', invoicePaidAt: '2026-04-24T14:03:05Z',
+    paymentAmount: 15_500, dueDate: '2026-05-24',
+    nudge1Date: '2026-05-08', nudge2Date: '2026-05-16', nudgesSent: [],
+    tagsApplied: ['New Client', 'Emerging Managers Summit 2026'],
+    tagsExisting: [], tagsNewlyApplied: ['New Client', 'Emerging Managers Summit 2026'],
+    assignedCsm: { name: 'Tessa Nguyen', tier: 'Scale', email: 'tnguyen@iconnections.io', region: 'Americas' },
+    csmReasoning: 'Scale tier (AUM $320M, invoice $15,500 — below both thresholds), Americas region (+1 prefix) → Tessa Nguyen',
+    copilotCompanyId: 'CPNY-2002-CPG', copilotClientIds: ['CLT-2002-LS'],
+    computedSubEndDate: '2027-04-30', teamsCardId: 'TC-2002', teamsMutationCount: 7,
+    auditLog: [
+      { timestamp: '2026-04-24T14:02:11Z', stage: 'A', action: 'invoice_sent', data: { invoiceId: 'INV-2002', amount: 15500 } },
+      { timestamp: '2026-04-24T14:08:33Z', stage: 'B', action: 'nudge_schedule_created', data: { nudge1: '2026-05-08', nudge2: '2026-05-16' } },
+      { timestamp: '2026-04-24T14:09:17Z', stage: 'C', action: 'payment_received', data: { amount: 15500, paidAt: '2026-04-24T14:03:05Z' } },
+      { timestamp: '2026-04-24T14:14:55Z', stage: 'D', action: 'tags_applied', data: { tags: ['New Client', 'Emerging Managers Summit 2026'] } },
+      { timestamp: '2026-04-24T14:20:38Z', stage: 'E', action: 'csm_assigned', data: { csm: 'Tessa Nguyen', tier: 'Scale', region: 'Americas' } },
+      { timestamp: '2026-04-24T14:26:21Z', stage: 'F', action: 'copilot_registered', data: { companyId: 'CPNY-2002-CPG', clients: 1, events: 1 } },
+      { timestamp: '2026-04-24T14:32:04Z', stage: 'G', action: 'deal_closed_onboarded', data: { dealId: 'D-2002' } },
+    ],
+  }],
+  ['D-2003', {
+    dealId: 'D-2003', company: 'Vega Quantitative Strategies',
+    stages: { A: 'complete', B: 'complete', C: 'complete', D: 'complete', E: 'complete', F: 'running', G: 'pending' },
+    invoiceId: 'INV-2003', invoiceStatus: 'paid',
+    invoiceSentAt: '2026-04-26T11:05:44Z', invoicePaidAt: '2026-04-26T11:06:31Z',
+    paymentAmount: 55_000, dueDate: '2026-05-26',
+    nudge1Date: '2026-05-11', nudge2Date: '2026-05-19', nudgesSent: [],
+    tagsApplied: ['New Client', 'European Allocator Series London 2026', 'Global Alts Miami 2026'],
+    tagsExisting: [], tagsNewlyApplied: ['New Client', 'European Allocator Series London 2026', 'Global Alts Miami 2026'],
+    assignedCsm: { name: 'Priya Anand', tier: 'Enterprise', email: 'panand@iconnections.io', region: 'EMEA' },
+    csmReasoning: 'Enterprise tier (AUM $2.1B > $1B, invoice $55k > $25k), EMEA region (+44 prefix) → Priya Anand',
+    teamsCardId: 'TC-2003', teamsMutationCount: 5,
+    auditLog: [
+      { timestamp: '2026-04-26T11:05:44Z', stage: 'A', action: 'invoice_sent', data: { invoiceId: 'INV-2003', amount: 55000 } },
+      { timestamp: '2026-04-26T11:12:02Z', stage: 'B', action: 'nudge_schedule_created', data: { nudge1: '2026-05-11', nudge2: '2026-05-19' } },
+      { timestamp: '2026-04-26T11:12:48Z', stage: 'C', action: 'payment_received', data: { amount: 55000 } },
+      { timestamp: '2026-04-26T11:18:31Z', stage: 'D', action: 'tags_applied', data: { tags: ['New Client', 'European Allocator Series London 2026', 'Global Alts Miami 2026'] } },
+      { timestamp: '2026-04-26T11:24:14Z', stage: 'E', action: 'csm_assigned', data: { csm: 'Priya Anand', tier: 'Enterprise', region: 'EMEA' } },
+    ],
+  }],
+  ['D-2004', {
+    dealId: 'D-2004', company: 'Thornfield Asset Management',
+    stages: { A: 'complete', B: 'complete', C: 'complete', D: 'running', E: 'pending', F: 'pending', G: 'pending' },
+    invoiceId: 'INV-2004', invoiceStatus: 'paid',
+    invoiceSentAt: '2026-04-27T08:33:19Z', invoicePaidAt: '2026-04-27T20:45:02Z',
+    paymentAmount: 18_000, dueDate: '2026-05-27',
+    nudge1Date: '2026-05-12', nudge2Date: '2026-05-20', nudgesSent: ['nudge1'],
+    teamsCardId: 'TC-2004', teamsMutationCount: 3,
+    auditLog: [
+      { timestamp: '2026-04-27T08:33:19Z', stage: 'A', action: 'invoice_sent', data: { invoiceId: 'INV-2004', amount: 18000 } },
+      { timestamp: '2026-04-27T08:39:47Z', stage: 'B', action: 'nudge_schedule_created', data: { nudge1: '2026-05-12', nudge2: '2026-05-20' } },
+      { timestamp: '2026-04-27T08:47:22Z', stage: 'B', action: 'nudge1_sent', data: { sentAt: '2026-04-27T08:47:22Z' } },
+      { timestamp: '2026-04-27T20:51:08Z', stage: 'C', action: 'payment_received', data: { amount: 18000 } },
+    ],
+  }],
+  ['D-2005', {
+    dealId: 'D-2005', company: 'Pacific Rim Ventures',
+    stages: { A: 'complete', B: 'complete', C: 'pending', D: 'pending', E: 'pending', F: 'pending', G: 'pending' },
+    invoiceId: 'INV-2005', invoiceStatus: 'needs_human_followup',
+    invoiceSentAt: '2026-04-26T16:22:07Z',
+    dueDate: '2026-05-26', nudge1Date: '2026-05-11', nudge2Date: '2026-05-19',
+    nudgesSent: ['nudge1', 'nudge2'], needsHumanFollowUp: true,
+    teamsCardId: 'TC-2005', teamsMutationCount: 3,
+    auditLog: [
+      { timestamp: '2026-04-26T16:22:07Z', stage: 'A', action: 'invoice_sent', data: { invoiceId: 'INV-2005', amount: 62000 } },
+      { timestamp: '2026-04-26T16:28:45Z', stage: 'B', action: 'nudge_schedule_created', data: { nudge1: '2026-05-11', nudge2: '2026-05-19' } },
+      { timestamp: '2026-04-26T16:36:33Z', stage: 'B', action: 'nudge1_sent' },
+      { timestamp: '2026-04-26T16:44:21Z', stage: 'B', action: 'nudge2_sent' },
+      { timestamp: '2026-04-27T09:15:44Z', stage: 'C', action: 'flagged_needs_followup', data: { reason: 'Payment not received after maximum wait — manual follow-up required' } },
+    ],
+  }],
+  ['D-2006', {
+    dealId: 'D-2006', company: 'Kingsley Credit Advisors',
+    stages: { A: 'complete', B: 'complete', C: 'complete', D: 'failed', E: 'pending', F: 'pending', G: 'pending' },
+    invoiceId: 'INV-2006', invoiceStatus: 'paid',
+    invoiceSentAt: '2026-04-27T13:44:56Z', invoicePaidAt: '2026-04-27T13:45:38Z',
+    paymentAmount: 38_000, dueDate: '2026-05-27',
+    nudge1Date: '2026-05-12', nudge2Date: '2026-05-20', nudgesSent: [],
+    haltReason: 'Conflicting deal-type tags: found [Platform Renewal], expected New Client',
+    teamsCardId: 'TC-2006', teamsMutationCount: 3,
+    auditLog: [
+      { timestamp: '2026-04-27T13:44:56Z', stage: 'A', action: 'invoice_sent', data: { invoiceId: 'INV-2006', amount: 38000 } },
+      { timestamp: '2026-04-27T13:51:14Z', stage: 'B', action: 'nudge_schedule_created' },
+      { timestamp: '2026-04-27T13:51:52Z', stage: 'C', action: 'payment_received', data: { amount: 38000 } },
+      { timestamp: '2026-04-27T13:57:35Z', stage: 'D', action: 'halt_conflicting_tags', data: { conflicting: ['Platform Renewal'], expected: 'New Client' } },
+    ],
+  }],
+]);
+
 function resetAllStates(): void {
-  dealStates = new Map(DEALS.map(d => [d.id, makeInitialState(d)]));
+  dealStates = new Map(DEALS.map(d => [d.id, DEMO_STATES.get(d.id) ?? makeInitialState(d)]));
   dealClients.clear();
   dealReplies.clear();
 }
