@@ -625,6 +625,12 @@ select.fc { cursor: pointer; }
 .btn-halt    { background:var(--red-bg); color:var(--red); border:1px solid rgba(220,38,38,0.25); }
 .btn-halt:hover  { background:#FEE2E2; }
 
+/* ── Loading spinner ────────────────────────────────────────────────────── */
+.loading-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; height:320px; gap:16px; }
+.loading-ring { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--brand); border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.loading-txt { color:var(--text-3); font-size:13.5px; }
+
 /* ── Toast ─────────────────────────────────────────────────────────────── */
 #toast {
   position: fixed; bottom: 24px; right: 24px; z-index: 999;
@@ -712,7 +718,14 @@ const S = {
 function navigate(path) { window.location.hash = '#' + path; }
 
 window.addEventListener('hashchange', route);
-window.addEventListener('DOMContentLoaded', () => { init(); route(); });
+window.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('page').innerHTML =
+    `<div class="loading-wrap"><div class="loading-ring"></div><div class="loading-txt">Connecting to pipeline…</div></div>`;
+  await init();
+  route();
+  // Keep Railway warm during demo — ping every 4 minutes
+  setInterval(() => fetch('/api/deals').catch(()=>{}), 4 * 60 * 1000);
+});
 
 function route() {
   const raw = (window.location.hash.slice(1) || '/').replace(/^\//, '');
