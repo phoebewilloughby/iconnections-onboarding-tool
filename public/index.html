@@ -780,10 +780,44 @@ function onUpdate(dealId) {
   const parts=h.split('/').filter(Boolean);
   if (!parts[0]) patchHome();
   else if (parts[0]==='deals'&&!parts[1]) patchDealsRow(dealId);
-  else if (parts[0]==='deals'&&parts[1]===dealId) softRefresh();
+  else if (parts[0]==='deals'&&parts[1]===dealId) patchDetail(dealId);
   patchKpis();
 }
 function softRefresh() { route(); }
+
+function patchDetail(dealId) {
+  const d=S.detail[dealId];
+  if(!d) return;
+
+  // Header — swap only .deal-header, not the whole page
+  const hdrEl=document.querySelector('.deal-header');
+  if(hdrEl) {
+    const tmp=document.createElement('div');
+    tmp.innerHTML=dealHeader(d.deal,d.state);
+    const newHdr=tmp.querySelector('.deal-header');
+    if(newHdr) hdrEl.replaceWith(newHdr);
+  }
+
+  // Sidebar
+  const sbEl=document.getElementById('detail-sidebar');
+  if(sbEl) sbEl.innerHTML=renderSidebar(d.deal,d.state,d.teamsMutations);
+
+  // Active tab content
+  const tcEl=document.getElementById('tab-content');
+  if(tcEl) {
+    const tab=S.curTab[dealId]??'overview';
+    tcEl.innerHTML=renderTab(tab,d.deal,d.state,d.emails,d.replies,d.teamsMutations);
+  }
+
+  // Tab badge counts
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    const badge=btn.querySelector('.tab-count');
+    if(!badge) return;
+    const lbl=btn.childNodes[0]?.textContent?.trim().toLowerCase()??'';
+    if(lbl==='emails')    badge.textContent=(d.emails?.length??0)+(d.replies?.length??0);
+    if(lbl==='audit log') badge.textContent=d.state?.auditLog?.length??0;
+  });
+}
 
 /* ═══════════════════════════════════════════════════════════
    UTILS
@@ -1051,15 +1085,26 @@ let _detailId=null;
 
 async function renderDetail(id) {
   _detailId=id;
-  const cached=S.byId[id]??{id,company:id,state:null};
-  setBc([{label:'Dashboard',path:''},{label:'All Deals',path:'deals'},{label:cached.company??id}]);
+  if(!S.curTab[id]) S.curTab[id]='overview';
+
+  // If already cached, render immediately — no loading flash
+  if(S.detail[id]) {
+    const d=S.detail[id];
+    setBc([{label:'Dashboard',path:''},{label:'All Deals',path:'deals'},{label:d.deal.company}]);
+    drawDetail(d.deal,d.state,d.emails,d.replies,d.teamsMutations);
+    // Refresh emails/replies silently in background
+    loadDetail(id).catch(()=>{});
+    return;
+  }
+
+  // First visit — show loader, then fetch
+  const fallback=S.byId[id];
+  setBc([{label:'Dashboard',path:''},{label:'All Deals',path:'deals'},{label:fallback?.company??id}]);
   document.getElementById('page').innerHTML='<div style="text-align:center;padding:60px;color:var(--text-3)">Loading…</div>';
   const det=await loadDetail(id).catch(()=>null);
   if(!det){document.getElementById('page').innerHTML='<div class="card card-body" style="padding:40px;text-align:center;color:var(--text-3)">Deal not found.</div>';return;}
-  const{deal:fd,state:st,emails,teamsMutations,replies}=det;
-  setBc([{label:'Dashboard',path:''},{label:'All Deals',path:'deals'},{label:fd.company}]);
-  if(!S.curTab[id]) S.curTab[id]='overview';
-  drawDetail(fd,st,emails,replies,teamsMutations);
+  setBc([{label:'Dashboard',path:''},{label:'All Deals',path:'deals'},{label:det.deal.company}]);
+  drawDetail(det.deal,det.state,det.emails,det.replies,det.teamsMutations);
 }
 
 function drawDetail(fd,st,emails,replies,teamsMutations) {
